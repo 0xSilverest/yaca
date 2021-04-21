@@ -1,0 +1,11 @@
+/home/silverest/Coding/Java/shut-app/src/main/java/com/ensate/chatapp/server/db/DBApi.java
+/home/silverest/Coding/Java/shut-app/src/main/java/com/ensate/chatapp/server/ServerConnection.java
+/home/silverest/Coding/Java/shut-app/src/main/java/com/ensate/chatapp/Utils/StringUtils.java
+/home/silverest/Coding/Java/shut-app/src/main/java/com/ensate/chatapp/client/Client.java
+/home/silverest/Coding/Java/shut-app/src/main/java/com/ensate/chatapp/server/ClientSession.java
+/home/silverest/Coding/Java/shut-app/src/main/java/com/ensate/chatapp/Connection.java
+/home/silverest/Coding/Java/shut-app/src/main/java/com/ensate/chatapp/App.java
+/home/silverest/Coding/Java/shut-app/src/main/java/com/ensate/chatapp/server/Server.java
+/home/silverest/Coding/Java/shut-app/src/main/java/com/ensate/chatapp/server/ChatOp.java
+/home/silverest/Coding/Java/shut-app/src/main/java/com/ensate/chatapp/client/ClientConnection.java
+/home/silverest/Coding/Java/shut-app/src/main/java/com/ensate/chatapp/server/db/UserDb.java
