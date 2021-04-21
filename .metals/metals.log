@@ -3107,3 +3107,4 @@ Starting thread that pumps server stdout and redirects it to the client stdout..
 [0m2021.04.20 18:27:35 INFO  time: indexed workspace in 11s[0m
 [0m2021.04.20 21:59:49 INFO  Shut down connection with build server.[0m
 No more data in the client stdin, exiting...
+[0m2021.04.21 01:45:25 INFO  Started: Metals version 0.10.1 in workspace '/home/silverest/Coding/Java/shut-app' for client coc.nvim 0.0.80.[0m
