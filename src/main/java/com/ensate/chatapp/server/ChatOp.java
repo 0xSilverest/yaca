@@ -68,7 +68,7 @@ class SendMessage implements ChatOp {
     @Override
     public String execute() {
         try {
-            sendTo.sendMessage(msg);
+            sendTo.sendMessage(sentFrom + ": " + msg);
         } catch (IOException e) {
             e.printStackTrace();   
         }

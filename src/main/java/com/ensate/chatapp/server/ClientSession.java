@@ -3,14 +3,16 @@ package com.ensate.chatapp.server;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import com.ensate.chatapp.Utils.StringUtils;
+import com.ensate.chatapp.utils.StringUtils;
 
 public class ClientSession extends Thread {
     
     private final ServerConnection conn;
+    private final Session session;
 
     ClientSession (ServerConnection conn) {
         this.conn = conn;
+        this.session = new Session();
     }
 
     private void menu (String query) throws IOException, NoSuchAlgorithmException {
@@ -35,7 +37,11 @@ public class ClientSession extends Thread {
                     String[] data = input.split("\\s+");
                     if (data.length >= 2) {
                         chatop = new Authentificate(data[0], StringUtils.encrypt(data[1]));
-                        conn.sendMessage(chatop.execute());
+                        String response = chatop.execute();
+                        if (response.equals("Succesfully connected")) {
+                            conn.sendMessage(response);
+                            session.assign(StringUtils.randomGen(), data[0]);
+                        }
                         Server.addSocketFor(data[0], conn);
                     } else {
                         conn.sendMessage("Login/Password missing");
