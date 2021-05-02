@@ -15,8 +15,20 @@ class Session {
         this.username = username;
     }
 
+    public String getUsername () {
+        return username;
+    }
+
+    public String getId () {
+        return id;
+    } 
+
+    public boolean isAssigned () {
+        return id != null && username != null;
+    }
+
     public void close() {
-        this.id = "";
-        this.username = "";
+        this.id = null;
+        this.username = null;
     }
 }

@@ -19,6 +19,18 @@ public class Server {
         userSock.putIfAbsent(username, conn);
     }
 
+    public static void sendMessage (String msg) {
+        userSock.values().forEach(x -> {
+            try {
+               x.sendMessage(msg);    
+            } catch (IOException e) {}
+        });
+    }
+
+    public static boolean isConnected(String username) {
+        return userSock.containsKey(username);
+    }
+
     public static void main(String[] args) throws IOException, SQLException, ClassNotFoundException {
         ServerSocket server = new ServerSocket(PORT, 50);
         server.setReuseAddress(true);

@@ -1,0 +1,24 @@
+@startuml
+class Client
+
+interface Chat 
+
+class GroupChat extends Chat
+
+class IndividualChat extends Chat
+
+class ChatHistory
+
+class Message
+
+class Settings
+
+class ClientConnection
+
+Client -- Chat 
+GroupChat      -- Message 
+IndividualChat -- Message
+Settings - Client
+Client - ClientConnection
+Message -- ChatHistory
+@enduml

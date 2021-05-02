@@ -46,6 +46,8 @@ class Authentificate implements ChatOp {
         try {
             if (UserDb.authentificate(username, pw))
                 return "Connected succesfully";
+            else if (Server.isConnected(username)) 
+                return "Account already in use";
             else return "Wrong entry";
         } catch (SQLException e) {
             e.printStackTrace();
@@ -56,11 +58,13 @@ class Authentificate implements ChatOp {
 
 class SendMessage implements ChatOp {
     private final ServerConnection sentFrom;
+    private final String name;
     private final ServerConnection sendTo;
     private final String msg;
 
-    SendMessage (ServerConnection sentFrom, ServerConnection sendTo, String msg) {
+    SendMessage (ServerConnection sentFrom, String name, ServerConnection sendTo, String msg) {
         this.sentFrom = sentFrom;
+        this.name = name;
         this.sendTo = sendTo;
         this.msg = msg;
     }
@@ -68,7 +72,8 @@ class SendMessage implements ChatOp {
     @Override
     public String execute() {
         try {
-            sendTo.sendMessage(sentFrom + ": " + msg);
+            sentFrom.sendMessage("you: " + msg);
+            sendTo.sendMessage(name + ": " + msg);
         } catch (IOException e) {
             e.printStackTrace();   
         }
@@ -76,3 +81,20 @@ class SendMessage implements ChatOp {
     }
 }
 
+class Broadcast implements ChatOp {
+    private final ServerConnection sender;
+    private final String name;
+    private final String message;
+
+    Broadcast (ServerConnection sentFrom, String name, String message) {
+        this.sender = sentFrom;
+        this.name = name;
+        this.message = message;
+    }
+
+    @Override
+    public String execute () {
+        Server.sendMessage(name + ": " + message);
+        return "";
+    }
+}

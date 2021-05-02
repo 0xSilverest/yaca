@@ -38,9 +38,12 @@ public class ClientSession extends Thread {
                     if (data.length >= 2) {
                         chatop = new Authentificate(data[0], StringUtils.encrypt(data[1]));
                         String response = chatop.execute();
-                        if (response.equals("Succesfully connected")) {
+                        if (response.equals("Connected succesfully")) {
                             conn.sendMessage(response);
                             session.assign(StringUtils.randomGen(), data[0]);
+                            System.out.println(data[0]);
+                        } else {
+                            conn.sendMessage(response);
                         }
                         Server.addSocketFor(data[0], conn);
                     } else {
@@ -50,8 +53,25 @@ public class ClientSession extends Thread {
                 }
             case "/chat" : {
                     String[] data = input.split("\\s+", 2);
-                    chatop = new SendMessage(conn, Server.getSocketFor(data[0]), data[1]);
-                    chatop.execute();
+                    if (session.isAssigned()) { 
+                        chatop = new SendMessage(conn, session.getUsername(), Server.getSocketFor(data[0]), data[1]);
+                        chatop.execute();
+                    } else {
+                        conn.sendMessage("Error not connected");
+                    }
+                    break;
+                }
+            case "/broadcast" : {
+                    if (session.isAssigned()) {
+                        chatop = new Broadcast(conn, session.getUsername(), input);
+                        chatop.execute();
+                    } else {
+                        conn.sendMessage("Error not connected");
+                    }
+                    break;
+                }
+            case "/disconnect" : {
+                    this.session.close();
                     break;
                 }
             case "/exit" :
