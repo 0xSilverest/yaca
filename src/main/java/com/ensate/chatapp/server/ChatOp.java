@@ -98,3 +98,16 @@ class Broadcast implements ChatOp {
         return "";
     }
 }
+
+class ListUsers implements ChatOp {
+    private final ServerConnection conn;
+    
+    ListUsers (ServerConnection conn) {
+        this.conn = conn;
+    }
+
+    @Override
+    public String execute () {
+        
+    }
+}
