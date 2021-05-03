@@ -24,56 +24,54 @@ public class ClientSession extends Thread {
 
         switch (choice) {
             case "/register" : {
-                    String[] data = input.split("\\s+");
-                    if (data.length >= 2) {
-                        chatop = new Register(data[0], StringUtils.encrypt(data[1])); 
-                        conn.sendMessage(chatop.execute());
-                    } else {
-                        conn.sendMessage("Login/Password missing");
-                    }
-                    break;
-                }
+                String[] data = input.split("\\s+");
+                if (data.length >= 2) 
+                    chatop = new Register(data[0], StringUtils.encrypt(data[1]));     
+                conn.sendMessage(chatop.execute());
+                break;
+            }
+
             case "/login" : {
-                    String[] data = input.split("\\s+");
-                    if (data.length >= 2) {
-                        chatop = new Authentificate(data[0], StringUtils.encrypt(data[1]));
-                        String response = chatop.execute();
-                        if (response.equals("Connected succesfully")) {
-                            conn.sendMessage(response);
-                            session.assign(StringUtils.randomGen(), data[0]);
-                            System.out.println(data[0]);
-                        } else {
-                            conn.sendMessage(response);
-                        }
-                        Server.addSocketFor(data[0], conn);
-                    } else {
-                        conn.sendMessage("Login/Password missing");
-                    }
-                    break;
+                String[] data = input.split("\\s+");
+                if (data.length >= 2) {
+                    chatop = new Authentificate(data[0], StringUtils.encrypt(data[1]));
+                    String response = chatop.execute();
+                    if (response.equals("200:Connected succesfully")) {
+                        session.assign(StringUtils.randomGen(), data[0]); 
+                    } 
+                    conn.sendMessage(response);
+                    Server.addSocketFor(data[0], conn);
+                } else {
+                    conn.sendMessage("400:Login/Password missing");
                 }
+                break;
+            }
+
             case "/chat" : {
-                    String[] data = input.split("\\s+", 2);
-                    if (session.isAssigned()) { 
-                        chatop = new SendMessage(conn, session.getUsername(), Server.getSocketFor(data[0]), data[1]);
-                        chatop.execute();
-                    } else {
-                        conn.sendMessage("Error not connected");
-                    }
-                    break;
+                String[] data = input.split("\\s+", 2);
+                if (session.isAssigned()) { 
+                    chatop = new SendMessage(conn, session.getUsername(), Server.getSocketFor(data[0]), data[1]);
+                    chatop.execute();
+                } else {
+                    conn.sendMessage("Error not connected");
                 }
+                break;
+            }
+
             case "/broadcast" : {
-                    if (session.isAssigned()) {
-                        chatop = new Broadcast(conn, session.getUsername(), input);
-                        chatop.execute();
-                    } else {
-                        conn.sendMessage("Error not connected");
-                    }
-                    break;
+                if (session.isAssigned()) {
+                    chatop = new Broadcast(conn, session.getUsername(), input);
+                    chatop.execute();
+                } else {
+                    conn.sendMessage("Error not connected");
                 }
-            case "/disconnect" : {
-                    this.session.close();
-                    break;
-                }
+                break;
+            }
+                
+            case "/disconnect" : 
+                this.session.close();
+                break;
+
             case "/exit" :
                 conn.shutdown();
                 break;

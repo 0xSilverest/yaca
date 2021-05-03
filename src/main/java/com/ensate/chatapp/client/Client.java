@@ -6,12 +6,28 @@ import java.util.Scanner;
 public class Client {
     private static ClientConnection conn;
 
+    public static void setConnection() throws IOException, InterruptedException {
+        conn = new ClientConnection();
+        System.out.println("Connected");
+    }
+    
+    public static boolean login(String username, String password) throws IOException {
+        conn.sendMessage("/login " + username + " " + password);        
+        return conn.getMessage().contains("200");
+    }
+
+    public static void exit() throws IOException {
+        conn.sendMessage("/exit");
+    }
+
+    public static void sendMessage(String sendTo, String message) throws IOException {
+        conn.sendMessage("/chat " + sendTo + " " + message);
+    }
+
     public static void main (String[] args) throws IOException, InterruptedException {
         conn = new ClientConnection();
         
-        final Scanner in = new Scanner(System.in);
-
-        String query = "";
+        final Scanner in = new Scanner(System.in); 
 
         Runnable messaging = () -> {
             String msg = "";

@@ -45,14 +45,14 @@ class Authentificate implements ChatOp {
     public String execute() {
         try {
             if (UserDb.authentificate(username, pw))
-                return "Connected succesfully";
+                return "200:Connected succesfully";
             else if (Server.isConnected(username)) 
-                return "Account already in use";
-            else return "Wrong entry";
+                return "300:Account already in use";
+            else return "300:Wrong entry";
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return "Error occured";
+        return "400:Error occured";
     }
 }
 
