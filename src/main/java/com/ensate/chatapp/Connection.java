@@ -1,40 +1,31 @@
 package com.ensate.chatapp;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 
+import com.ensate.chatapp.interact.*;
+
 public class Connection {
-    protected DataInputStream dis;
-    protected DataOutputStream dos;
-    protected Socket socket;
-    protected ObjectOutputStream oos;
     protected ObjectInputStream ois;
+    protected ObjectOutputStream oos;
+    protected Socket socket;
 
-    public String getMessage() throws IOException {
-        return dis.readUTF();
+    public Message receive() throws IOException, ClassNotFoundException {
+        Object obj = ois.readObject();
+        if (obj instanceof Message)
+            return (Message) obj;
+        return null;
     }
 
-    public void sendMessage(String msg) throws IOException {
-        dos.writeUTF(msg);
-    }
-
-    public Object receiveObject() throws IOException, ClassNotFoundException {
-        return ois.readObject();
-    }
-
-    public void sendObject(Object obj) throws IOException {
-        oos.writeObject(obj);
+    public void send(Message msg) throws IOException {
+        oos.writeObject(msg);
     }
 
     public void shutdown() throws IOException {
-        dis.close();
-        dos.close();
-        oos.close();
         ois.close();
+        oos.close();
         socket.close();
     }
 }

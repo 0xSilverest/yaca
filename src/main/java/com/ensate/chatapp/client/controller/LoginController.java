@@ -2,8 +2,10 @@ package com.ensate.chatapp.client.controller;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.util.ResourceBundle;
 
+import com.ensate.chatapp.interact.*;
 import com.ensate.chatapp.client.App;
 import com.ensate.chatapp.client.Client;
 
@@ -22,8 +24,9 @@ public class LoginController implements Initializable {
     private PasswordField password;
 
     @FXML
-    private void onLoginReq(ActionEvent event) throws IOException{ 
-        if(Client.login(accName.getText(), password.getText())){
+    private void onLoginReq(ActionEvent event) throws NoSuchAlgorithmException, IOException, ClassNotFoundException { 
+        Client.login(accName.getText(), password.getText());
+        if (Client.getResponse().getResponseType().equals(ResponseType.SUCC)) {
             App.switchScene("chatapp");
         }
     }

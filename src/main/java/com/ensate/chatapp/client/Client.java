@@ -1,64 +1,64 @@
 package com.ensate.chatapp.client;
 
 import java.io.IOException;
-import java.util.Scanner;
+import java.security.NoSuchAlgorithmException;
+
+import com.ensate.chatapp.interact.*;
 
 public class Client {
     private static ClientConnection conn;
-
-    public static void setConnection() throws IOException, InterruptedException {
+    
+    public static void setConnection () throws IOException, InterruptedException {
         conn = new ClientConnection();
-        System.out.println("Connected");
+    }
+
+    public static void sendRequest(Request req) throws IOException, InterruptedException {
+        conn.send(req);
+    }
+
+    public static Response getResponse() throws IOException, ClassNotFoundException {
+        Object obj = conn.receive();
+        if (obj instanceof Response) 
+            return (Response) obj;
+        else return new RespEmpty();
+    }
+
+    public static void login (String account, String password) throws IOException, NoSuchAlgorithmException {
+        conn.send(new ReqAcc(account, password, RequestType.LOGIN));
+    }
+
+    public static void exit () throws IOException {
+        if (conn.isOn()) {  
+            conn.send(new ReqExit());
+            conn.shutdown();
+        }
     }
     
-    public static boolean login(String username, String password) throws IOException {
-        conn.sendMessage("/login " + username + " " + password);        
-        return conn.getMessage().contains("200");
-    }
+    public static void parseReponse(Response resp) {
+        switch (resp.getResponseType()) {
+            case MESSAGE:
+                //TODO call TextArea and fill it with the message received 
+                RespMessage respMsg = (RespMessage) resp;
+                System.out.println(respMsg);
+                break;
 
-    public static void exit() throws IOException {
-        conn.sendMessage("/exit");
-    }
+            case SENDFILE:
+                //TODO call TextArea and give hyperlink for file
+                break;
 
-    public static void sendMessage(String sendTo, String message) throws IOException {
-        conn.sendMessage("/chat " + sendTo + " " + message);
-    }
+            case UPDATELIST:
+                //TODO call ListView and update it
+                break;
 
-    public static void main (String[] args) throws IOException, InterruptedException {
-        conn = new ClientConnection();
-        
-        final Scanner in = new Scanner(System.in); 
+            case SUCC:
+                //TODO Use for Login and Registration
+                System.out.println("success");
+                break;
 
-        Runnable messaging = () -> {
-            String msg = "";
-            while (!msg.equals("/exit")) {
-                msg = in.nextLine();
-                try {
-                    conn.sendMessage(msg);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            try {
-                conn.shutdown();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        };
-
-        Thread receivingThread = new Thread (() -> {
-            while (conn.isOn()) {
-                try {
-                    String str = conn.getMessage();
-                    if(str.length() > 0)
-                        System.out.println(str);
-                } catch (Exception ignored) {}
-            }
-        });
-
-        receivingThread.start();
-        messaging.run(); 
-        in.close();
+            case FAIL:
+                //TODO Use for Login and Registration
+                System.out.println(((RespFail) resp).getReason());
+                break;
+        }
     }
 }

@@ -15,6 +15,8 @@ public class App extends Application {
     
     @Override
     public void start (Stage primaryStage) throws Exception { 
+        Client.setConnection();
+        System.out.println("Connected");
         window = primaryStage;
         scenes.put("login", new Scene(loadFXML("login.fxml")));
         scenes.put("chatapp", new Scene(loadFXML("app.fxml")));
@@ -22,10 +24,10 @@ public class App extends Application {
         window.setScene(scenes.get("login"));
         window.show();
     }
-
-    
+ 
     public static void switchScene(String sceneName) {
-        window.setScene(scenes.get(sceneName)); 
+        if (scenes.containsKey(sceneName))
+            window.setScene(scenes.get(sceneName)); 
     }
 
     public Parent loadFXML(String fxml) throws Exception {
@@ -35,7 +37,6 @@ public class App extends Application {
     } 
 
     public static void main(String[] args) throws IOException, InterruptedException { 
-        Client.setConnection();
         launch(args);
     } 
 }

@@ -3,6 +3,7 @@ package com.ensate.chatapp.server;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
+import com.ensate.chatapp.interact.*;
 import com.ensate.chatapp.utils.StringUtils;
 
 public class ClientSession extends Thread {
@@ -15,88 +16,68 @@ public class ClientSession extends Thread {
         this.session = new Session();
     }
 
-    private void menu (String query) throws IOException, NoSuchAlgorithmException {
-        String[] strArr = query.split("\\s+", 2);
-        String choice = strArr[0];
-        String input = strArr.length > 1 ? strArr[1] : "";
-    
-        ChatOp chatop = null;
+    private void menu (Request req) throws IOException, NoSuchAlgorithmException {
+        ChatOp chatOp = new DefChatOp();
 
-        switch (choice) {
-            case "/register" : {
-                String[] data = input.split("\\s+");
-                if (data.length >= 2) 
-                    chatop = new Register(data[0], StringUtils.encrypt(data[1]));     
-                conn.sendMessage(chatop.execute());
+        switch (req.getReqType()) {
+            case REG : {
+                chatOp = new Register((ReqAcc) req, conn);
                 break;
             }
 
-            case "/login" : {
-                String[] data = input.split("\\s+");
-                if (data.length >= 2) {
-                    chatop = new Authentificate(data[0], StringUtils.encrypt(data[1]));
-                    String response = chatop.execute();
-                    if (response.equals("200:Connected succesfully")) {
-                        session.assign(StringUtils.randomGen(), data[0]); 
-                    } 
-                    conn.sendMessage(response);
-                    Server.addSocketFor(data[0], conn);
-                } else {
-                    conn.sendMessage("400:Login/Password missing");
-                }
+            case LOGIN : {
+                chatOp = new Authentificate((ReqAcc) req, conn, session);
                 break;
             }
 
-            case "/chat" : {
-                String[] data = input.split("\\s+", 2);
-                if (session.isAssigned()) { 
-                    chatop = new SendMessage(conn, session.getUsername(), Server.getSocketFor(data[0]), data[1]);
-                    chatop.execute();
-                } else {
-                    conn.sendMessage("Error not connected");
-                }
+            case SENDMES : {
+                chatOp = new SendMessage((ReqMessage) req);
                 break;
             }
 
-            case "/broadcast" : {
-                if (session.isAssigned()) {
-                    chatop = new Broadcast(conn, session.getUsername(), input);
-                    chatop.execute();
-                } else {
-                    conn.sendMessage("Error not connected");
-                }
+            case SENDFILE : {
+                chatOp = new SendFile((ReqSendFile) req);
                 break;
             }
-                
-            case "/disconnect" : 
-                this.session.close();
+
+            case BROADCAST : {
+                chatOp = new Broadcast((ReqMessage) req);
+                break;
+            }
+
+            case ASKLIST : {
+                chatOp = new ListUsers((ReqList) req);
+                break;
+            }
+
+            case DISC : 
                 break;
 
-            case "/exit" :
+            case EXIT :
                 conn.shutdown();
                 break;
 
-            default :
-                
+            case EMPTY :
+                chatOp = new DefChatOp();
+                break;
         }
+
+        chatOp.execute();
 
     }
 
     @Override
     public void run() {
-        try {
-            conn.sendMessage("Server: authorize or register");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Request query = new ReqEmpty();
 
-        String query = "";
-
-        while (!query.equals("/exit")) {
+        while (!query.getReqType().equals(RequestType.EXIT)) {
             try {
-                query = conn.getMessage();
-                menu(query);
-            } catch (IOException | NoSuchAlgorithmException e) {
+                Object obj = conn.receive();
+                if (obj instanceof Request) {
+                    query = (Request) obj;
+                    menu(query);
+                }
+            } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
         }                      

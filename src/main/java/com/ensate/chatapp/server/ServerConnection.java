@@ -5,12 +5,9 @@ import java.net.*;
 import com.ensate.chatapp.Connection;
 
 public class ServerConnection extends Connection {
-    public ServerConnection(ServerSocket server) throws IOException {
-        socket = server.accept();
-        dis = new DataInputStream(socket.getInputStream());
-        dos = new DataOutputStream(socket.getOutputStream());
+    public ServerConnection(ServerSocket server) throws IOException { 
+        socket = server.accept(); 
+        oos = new ObjectOutputStream(socket.getOutputStream()); 
         ois = new ObjectInputStream(socket.getInputStream());
-        oos = new ObjectOutputStream(socket.getOutputStream());
-        this.sendMessage("Connected succesfully!");
     }
 }

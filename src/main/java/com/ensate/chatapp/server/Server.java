@@ -4,7 +4,10 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
+import com.ensate.chatapp.interact.RespMessage;
 import com.ensate.chatapp.server.db.DBApi;
 
 public class Server {
@@ -19,19 +22,28 @@ public class Server {
         userSock.putIfAbsent(username, conn);
     }
 
-    public static void sendMessage (String msg) {
+    public static void sendMessage (RespMessage resp) {
         userSock.values().forEach(x -> {
             try {
-               x.sendMessage(msg);    
+               x.send(resp);    
             } catch (IOException e) {}
         });
+    }
+
+    public static Set<String> getConnectedList() {
+        return new HashSet<String>(userSock.keySet());
     }
 
     public static boolean isConnected(String username) {
         return userSock.containsKey(username);
     }
 
-    public static void main(String[] args) throws IOException, SQLException, ClassNotFoundException {
+    public static void removeUser(String username) {
+        userSock.remove(username);
+    }
+
+    public static void main(String[] args)
+            throws IOException, SQLException, ClassNotFoundException {
         ServerSocket server = new ServerSocket(PORT, 50);
         server.setReuseAddress(true);
         DBApi.startDB();
