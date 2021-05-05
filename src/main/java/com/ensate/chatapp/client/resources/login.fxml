@@ -28,17 +28,17 @@
              <CheckBox 
                  layoutX="33.0" layoutY="285.0" 
                  mnemonicParsing="false" text="Se rappeler" />
-             <Button onAction="#onLoginReq"  
+             <Button onAction="#onLoginReq" fx:id="loginBtn"
                  layoutX="33.0" layoutY="312.0" 
-                 mnemonicParsing="false" 
+                 mnemonicParsing="true" 
                  prefHeight="38.0" prefWidth="147.0" 
-                 text="Se Connecter" />
-             <Button onAction="#onExitReq" 
+                 text="_Se Connecter" />
+             <Button onAction="#onExitReq" fx:id="exitBtn"
                  layoutX="190.0" layoutY="312.0" 
-                 mnemonicParsing="false" 
+                 mnemonicParsing="true" 
                  prefHeight="38.0" prefWidth="147.0" 
-                 text="Quitter" />
-             <Button 
+                 text="_Quitter" />
+             <Button
                  layoutX="33.0" layoutY="358.0" 
                  mnemonicParsing="false" 
                  prefHeight="38.0" prefWidth="304.0" 

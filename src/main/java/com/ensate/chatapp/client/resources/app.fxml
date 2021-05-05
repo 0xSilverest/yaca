@@ -37,7 +37,7 @@
             <TextArea editable="false" 
                 layoutX="146.0" layoutY="33.0"
                 prefHeight="315.0" prefWidth="489.0" />
-            <ListView editable="false"
+            <ListView editable="false" fx:id="connectedList"
                 layoutX="7.0" layoutY="63.0"
                 prefHeight="330.0" prefWidth="135.0" />
             <TextField fx:id='search'

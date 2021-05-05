@@ -18,6 +18,8 @@ public class App extends Application {
         Client.setConnection();
         System.out.println("Connected");
         window = primaryStage;
+        window.setResizable(false);
+
         scenes.put("login", new Scene(loadFXML("login.fxml")));
         scenes.put("chatapp", new Scene(loadFXML("app.fxml")));
 

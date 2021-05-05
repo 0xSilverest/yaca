@@ -56,6 +56,7 @@ class Authentificate implements ChatOp {
                 System.out.println(username);
                 conn.send(new RespSucc());
                 session.assign(StringUtils.randomGen(), username);
+                Server.addSocketFor(username, conn);
             } else if (Server.isConnected(username)) 
                 conn.send(new RespFail("User already connected."));
             else 
