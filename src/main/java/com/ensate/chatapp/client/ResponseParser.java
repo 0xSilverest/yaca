@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import com.ensate.chatapp.interact.*;
 
+import javafx.application.Platform;
+
 public class ResponseParser extends Thread {
     public static void parseReponse(Response resp) {
         switch (resp.getResponseType()) {
@@ -19,6 +21,7 @@ public class ResponseParser extends Thread {
 
             case UPDATELIST:
                 //TODO call ListView and update it
+                new Thread(() -> Client.updateOnlineUsers(((RespUpdateList) resp).getLoggedIns())).start();
                 break;
 
             case SUCC:
@@ -35,10 +38,17 @@ public class ResponseParser extends Thread {
 
     @Override
     public void run() {
-        try {
-            parseReponse(Client.getResponse());
-        } catch (IOException e) {
-            e.printStackTrace();
+        while (true) {
+            try {
+                parseReponse(Client.getResponse());
+            } catch (IOException e) {
+                try {
+                    Client.shutdown();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                Platform.exit();
+            }
         }
     }
 }

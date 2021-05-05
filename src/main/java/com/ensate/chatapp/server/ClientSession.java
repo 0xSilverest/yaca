@@ -2,6 +2,7 @@ package com.ensate.chatapp.server;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.net.SocketException;
 import java.security.NoSuchAlgorithmException;
 
 import com.ensate.chatapp.interact.*;
@@ -77,7 +78,7 @@ public class ClientSession extends Thread {
                     query = (Request) obj;
                     menu(query);
                 }
-            } catch (EOFException e) {
+            } catch (EOFException | SocketException e) {
                 System.out.println("Client " + session.getId() + " interrupted");
                 query = new ReqExit();
             } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException e) {

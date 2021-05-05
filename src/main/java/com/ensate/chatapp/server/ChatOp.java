@@ -57,6 +57,7 @@ class Authentificate implements ChatOp {
                 conn.send(new RespSucc());
                 session.assign(StringUtils.randomGen(), username);
                 Server.addSocketFor(username, conn);
+                Server.broadcast(new RespUpdateList(Server.getConnectedList()));
             } else if (Server.isConnected(username)) 
                 conn.send(new RespFail("User already connected."));
             else 
@@ -77,10 +78,14 @@ class SendMessage implements ChatOp {
     @Override
     public void execute() {
         try {
-            Server
-                .getSocketFor(req.getSendTo())
-                .send(new RespMessage(req.getSender(), req.getMsg()));
-            System.out.println(req);            
+            if (Server.hasSocketFor(req.getSendTo())) 
+                Server
+                    .getSocketFor(req.getSendTo())
+                    .send(new RespMessage(req.getSender(), req.getMsg()));
+            else 
+                Server
+                    .getSocketFor(req.getSender())
+                    .send(new RespFail("User Not Found"));
         } catch (IOException e) {
             e.printStackTrace();   
         }
@@ -97,7 +102,7 @@ class Broadcast implements ChatOp {
 
     @Override
     public void execute () {
-        Server.sendMessage(new RespMessage(req.getSender(), req.getMsg()));
+        Server.broadcast(new RespMessage(req.getSender(), req.getMsg()));
         System.out.println(req);        
     }
 }
