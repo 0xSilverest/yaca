@@ -10,9 +10,9 @@ public class ResponseParser extends Thread {
     public static void parseReponse(Response resp) {
         switch (resp.getResponseType()) {
             case MESSAGE:
-                //TODO call TextArea and fill it with the message received 
+                //TODO add unread 
                 RespMessage respMsg = (RespMessage) resp;
-                System.out.println(respMsg);
+                new Thread(() -> Client.updateChatLog(respMsg.getSender(), respMsg.getMsg())).start();
                 break;
 
             case SENDFILE:
@@ -20,17 +20,14 @@ public class ResponseParser extends Thread {
                 break;
 
             case UPDATELIST:
-                //TODO call ListView and update it
                 new Thread(() -> Client.updateOnlineUsers(((RespUpdateList) resp).getLoggedIns())).start();
                 break;
 
             case SUCC:
-                //TODO Use for Login and Registration
                 System.out.println("success");
                 break;
 
-            case FAIL:
-                //TODO Use for Login and Registration
+            case FAIL: 
                 System.out.println(((RespFail) resp).getReason());
                 break;
         }

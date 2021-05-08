@@ -54,7 +54,9 @@ public class ClientSession extends Thread {
             case DISC : 
                 break;
 
-            case EXIT :
+            case EXIT : 
+                Server.removeUser(session.getUsername());
+                Server.broadcast(new RespUpdateList(Server.getConnectedList()));
                 conn.shutdown();
                 break;
 
@@ -88,6 +90,7 @@ public class ClientSession extends Thread {
 
         try {
             Server.removeUser(session.getUsername());
+            Server.broadcast(new RespUpdateList(Server.getConnectedList()));
             conn.shutdown();
         } catch (IOException ex) {
             ex.printStackTrace();

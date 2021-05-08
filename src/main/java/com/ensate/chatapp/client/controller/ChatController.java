@@ -2,10 +2,7 @@ package com.ensate.chatapp.client.controller;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.List;
 import java.util.ResourceBundle;
-import java.util.TimerTask;
 
 import javafx.fxml.Initializable;
 import javafx.application.Platform;
@@ -18,7 +15,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 
 import com.ensate.chatapp.client.Client;
-import com.ensate.chatapp.interact.ReqList;
 
 public class ChatController implements Initializable {
     @FXML
@@ -27,7 +23,7 @@ public class ChatController implements Initializable {
     @FXML
     private ListView<String> messagesView;
 
-    @FXML 
+    @FXML
     private TextField message;
 
     @FXML
@@ -37,11 +33,11 @@ public class ChatController implements Initializable {
     private Button sendBtn;
 
     @FXML
-    private Button discBtn; 
+    private Button discBtn;
 
     private static ObservableList<String> connectedList = FXCollections.observableArrayList();
-    private ObservableList<String> messages = FXCollections.observableArrayList(List.of("this", "that", "other guy"));
-    private String currentSelectedContact;
+    private static ObservableList<String> messages = FXCollections.observableArrayList();
+    private static String currentSelectedContact;
 
     @Override 
     public void initialize (URL url, ResourceBundle resources) {
@@ -51,15 +47,17 @@ public class ChatController implements Initializable {
         message.setOnKeyPressed((keyEvent) -> 
                 EventCreator.create (
                     KeyCode.ENTER, 
-                    () -> sendMessageEvent()
-                    )
-                ); 
+                    () -> sendMessageEvent()  
+                )); 
 
         connectedView
             .getSelectionModel()
             .selectedItemProperty()
             .addListener((listener) -> {
-                currentSelectedContact = connectedView.getSelectionModel().getSelectedItem();
+                currentSelectedContact = connectedView.getSelectionModel().getSelectedItem(); 
+
+                System.out.println(currentSelectedContact);
+                updateChat();
             });
 
         connectedView.setItems(connectedList);
@@ -71,6 +69,7 @@ public class ChatController implements Initializable {
         try {
             Client.sendMessage(currentSelectedContact, message.getText());
             message.clear();    
+            updateChat();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -87,10 +86,15 @@ public class ChatController implements Initializable {
     }
 
     public static void updateList() {
-        Platform.runLater(() -> connectedList.setAll(Client.getOnlineUsers())); 
+        Platform.runLater(() -> connectedList.setAll(Client.getOnlineUsers()));
     }
 
-    //public static void updateChatLog() {
-    //    Platform.runLater(() -> messages.setAll(CLient.loadMessages()));
-    //} 
+    public static void updateChat() {
+        new Thread (() -> {
+            Platform
+                .runLater(() -> 
+                        messages
+                            .setAll(Client.getChatLogFor(currentSelectedContact)));    
+        }).start();
+    }
 }

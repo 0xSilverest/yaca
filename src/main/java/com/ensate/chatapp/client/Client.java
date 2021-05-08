@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.ensate.chatapp.client.controller.ChatController;
 import com.ensate.chatapp.interact.*;
@@ -22,14 +23,18 @@ public class Client {
     }
 
     public static void updateOnlineUsers(Set<String> users) {
-        onlineUsers = new ArrayList<>(users);        
+        onlineUsers = new ArrayList<>(users
+                                        .stream()
+                                        .filter(u -> !username.equals(u))
+                                        .collect(Collectors.toList()));
         ChatController.updateList();
     }
 
-    public static void updateChatLog(String sender, String msg) {
-        if (chatLog.containsKey(sender))
-            chatLog.put(sender, new ArrayList<String>(List.of(msg)));
-        else chatLog.get(sender).add(msg);
+    public static void updateChatLog(String k, String msg) {
+        if (!chatLog.containsKey(k))
+            chatLog.put(k, new ArrayList<String>(List.of(msg)));
+        else chatLog.get(k).add(msg);
+        ChatController.updateChat();
     } 
 
     public static ArrayList<String> getChatLogFor(String contact) {
@@ -68,7 +73,7 @@ public class Client {
             if (obj instanceof Response) 
                 return (Response) obj; 
         } catch (EOFException | ClassNotFoundException  e) {
-            System.out.println("Server own");
+            System.out.println("Server down");
         }
         return new RespEmpty();
     }
@@ -86,6 +91,7 @@ public class Client {
 
     public static void sendMessage (String sendTo, String message) throws IOException {
         conn.send(new ReqMessage(username, sendTo, message));
+        updateChatLog(sendTo, message);
     }
 
     public static void askForList() {
