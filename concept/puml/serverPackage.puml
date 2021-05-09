@@ -1,0 +1,65 @@
+@startuml
+package chatapp.server{
+    class Server {
+        -onlineList: Map<String, ServerConnection>
+    }
+    
+    class ServerConnection {
+        -conn: ServerSocket
+        -oos: ObjectOutputStream
+        -ois: ObjectInputStream
+        +send()
+        +receive()
+        +shutdown()
+    }
+    
+    class Session {
+        -id: String
+        -username: String
+    }
+    
+    interface Command {
+        +execute()
+    }
+    
+    class ClientSession extends Thread {
+        -conn: ServerConnection
+        -sess: Session
+        +menu(Request req)
+    }
+    
+    class SendMessage extends Command {
+        -req: ReqMessage
+    }
+    
+    class Login extends Command {
+        -req: ReqAcc
+    }
+    
+    class Register extends Command {
+        -req: ReqAcc
+    }
+
+    class Logout extends Command {
+        -req: ReqDisconnect
+    }
+    
+    class SendFile extends Command {
+        -req: ReqSendFile
+    }
+    
+    class Exit extends Command {
+        -req: reqExit
+    }
+    
+    class Broadcast extends Command {
+        -req: ReqMessage
+    }
+    
+    ServerConnection -- Server
+    ClientSession - Server
+    Session - ClientSession 
+    ClientSession -- Command
+}
+
+@enduml

@@ -1,0 +1,79 @@
+@startuml
+
+package chatapp.interact {
+    enum ResponseType {
+        MESSAGE
+        SENDFILE
+        UPDATELIST
+        SUCC
+        FAIL
+    }
+
+    interface Response {
+        -typeResp: ResponseType
+    } 
+
+    ResponseType - Response
+
+    class RespEmpty extends Response 
+
+    class RespFail extends Response 
+
+    class RespSucc extends Response 
+    
+    class RespMessage extends Response {
+        -sender: String
+        -msg: String
+    }
+
+    class RespSendFile extends Response {
+        -sender: String
+        -file: byte[]
+    }
+
+    class RespUpdateList extends Response {
+        -onlineUsers: Set<String>
+    }
+
+    enum RequestType {
+        REG
+        SENDMES
+        SENDFILE
+        ASKLIST
+        LOGIN
+        EXIT
+        DISC
+        BROADCAST
+        EMPTY
+    }
+
+    interface Request {
+        -typeReq: RequestType
+    }
+
+    Request - RequestType
+
+    class ReqAcc extends Request {
+        -usename: String
+        -password: String
+    }
+
+    class ReqDisconnect extends Request 
+
+    class ReqEmpty extends Request 
+
+    class ReqList extends Request
+
+    class ReqMessage extends Request {
+        -sender: String
+        -sendTo: String
+        -msg: String
+    }
+
+    class ReqSendFile extends Request {
+        -sender: String
+        -sendTo: String
+        -file: byte[]
+    }
+}
+@enduml
