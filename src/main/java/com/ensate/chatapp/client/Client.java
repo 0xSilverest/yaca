@@ -16,7 +16,7 @@ public class Client {
     private static ClientConnection conn;
     private static String username;
     private static List<String> onlineUsers = new ArrayList<>();
-    private static HashMap<String, ArrayList<String>> chatLog = new HashMap<>();
+    private static HashMap<String, ArrayList<UserMessage>> chatLog = new HashMap<>();
 
     public static List<String> getOnlineUsers() {
         return onlineUsers;
@@ -30,20 +30,20 @@ public class Client {
         ChatController.updateList();
     }
 
-    public static void updateChatLog(String k, String msg) {
+    public static void updateChatLog(String k, UserMessage msg) {
         if (!chatLog.containsKey(k))
-            chatLog.put(k, new ArrayList<String>(List.of(msg)));
+            chatLog.put(k, new ArrayList<UserMessage>(List.of(msg)));
         else chatLog.get(k).add(msg);
         ChatController.updateChat();
     } 
 
-    public static ArrayList<String> getChatLogFor(String contact) {
+    public static ArrayList<UserMessage> getChatLogFor(String contact) {
         if (chatLog.containsKey(contact))
             return chatLog.get(contact);
-        else return new ArrayList<String>();
+        else return new ArrayList<UserMessage>();
     }
     
-    public static HashMap<String, ArrayList<String>> loadMessages() {
+    public static HashMap<String, ArrayList<UserMessage>> loadMessages() {
         return chatLog;
     }
 
@@ -91,7 +91,7 @@ public class Client {
 
     public static void sendMessage (String sendTo, String message) throws IOException {
         conn.send(new ReqMessage(username, sendTo, message));
-        updateChatLog(sendTo, message);
+        updateChatLog(sendTo, new UserMessage("you", message));
     }
 
     public static void askForList() {
