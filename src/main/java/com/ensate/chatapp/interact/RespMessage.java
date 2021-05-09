@@ -10,6 +10,14 @@ public class RespMessage extends Response {
         this.responseType = ResponseType.MESSAGE;
     }
 
+    public String getSender() {
+        return sender;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
     @Override
     public String toString() {
         return sender + ": " + msg;

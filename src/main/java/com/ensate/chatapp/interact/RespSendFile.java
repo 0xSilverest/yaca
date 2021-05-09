@@ -6,7 +6,7 @@ public class RespSendFile extends Response {
     private int size;
 
     public static RespSendFile fromReq(ReqSendFile sendFile) {
-        return RespSendFile(sendFile.getsender(), sendFile.getFile());
+        return new RespSendFile(sendFile.getSender(), sendFile.getFile());
     }
 
     public RespSendFile (String sender, byte[] file) {
