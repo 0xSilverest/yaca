@@ -15,13 +15,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 
 import com.ensate.chatapp.client.Client;
+import com.ensate.chatapp.client.UserMessage;
 
 public class ChatController implements Initializable {
     @FXML
     private ListView<String> connectedView;
 
     @FXML
-    private ListView<String> messagesView;
+    private ListView<UserMessage> messagesView;
 
     @FXML
     private TextField message;
@@ -36,7 +37,7 @@ public class ChatController implements Initializable {
     private Button discBtn;
 
     private static ObservableList<String> connectedList = FXCollections.observableArrayList();
-    private static ObservableList<String> messages = FXCollections.observableArrayList();
+    private static ObservableList<UserMessage> messages = FXCollections.observableArrayList();
     private static String currentSelectedContact;
 
     @Override 

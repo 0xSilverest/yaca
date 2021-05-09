@@ -12,7 +12,7 @@ public class ResponseParser extends Thread {
             case MESSAGE:
                 //TODO add unread 
                 RespMessage respMsg = (RespMessage) resp;
-                new Thread(() -> Client.updateChatLog(respMsg.getSender(), respMsg.getMsg())).start();
+                new Thread(() -> Client.updateChatLog(respMsg.getSender(), UserMessage.retrieve(respMsg))).start();
                 break;
 
             case SENDFILE:
