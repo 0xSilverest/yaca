@@ -1,64 +1,104 @@
 package com.ensate.chatapp.client;
 
+import java.io.EOFException;
 import java.io.IOException;
-import java.util.Scanner;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.ensate.chatapp.client.controller.ChatController;
+import com.ensate.chatapp.interact.*;
 
 public class Client {
     private static ClientConnection conn;
+    private static String username;
+    private static List<String> onlineUsers = new ArrayList<>();
+    private static HashMap<String, ArrayList<String>> chatLog = new HashMap<>();
 
-    public static void setConnection() throws IOException, InterruptedException {
-        conn = new ClientConnection();
-        System.out.println("Connected");
+    public static List<String> getOnlineUsers() {
+        return onlineUsers;
+    }
+
+    public static void updateOnlineUsers(Set<String> users) {
+        onlineUsers = new ArrayList<>(users
+                                        .stream()
+                                        .filter(u -> !username.equals(u))
+                                        .collect(Collectors.toList()));
+        ChatController.updateList();
+    }
+
+    public static void updateChatLog(String k, String msg) {
+        if (!chatLog.containsKey(k))
+            chatLog.put(k, new ArrayList<String>(List.of(msg)));
+        else chatLog.get(k).add(msg);
+        ChatController.updateChat();
+    } 
+
+    public static ArrayList<String> getChatLogFor(String contact) {
+        if (chatLog.containsKey(contact))
+            return chatLog.get(contact);
+        else return new ArrayList<String>();
     }
     
-    public static boolean login(String username, String password) throws IOException {
-        conn.sendMessage("/login " + username + " " + password);        
-        return conn.getMessage().contains("200");
+    public static HashMap<String, ArrayList<String>> loadMessages() {
+        return chatLog;
     }
 
-    public static void exit() throws IOException {
-        conn.sendMessage("/exit");
+    public static void shutdown() throws IOException {
+        conn.shutdown();
     }
 
-    public static void sendMessage(String sendTo, String message) throws IOException {
-        conn.sendMessage("/chat " + sendTo + " " + message);
+    public static boolean isOn () {
+        return conn.isOn();
     }
 
-    public static void main (String[] args) throws IOException, InterruptedException {
+    public static void setUsername(String accname) {
+        username = accname;
+    }
+
+    public static void setConnection () throws IOException, InterruptedException {
         conn = new ClientConnection();
-        
-        final Scanner in = new Scanner(System.in); 
+    }
 
-        Runnable messaging = () -> {
-            String msg = "";
-            while (!msg.equals("/exit")) {
-                msg = in.nextLine();
-                try {
-                    conn.sendMessage(msg);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+    public static void sendRequest(Request req) throws IOException, InterruptedException {
+        conn.send(req);
+    }
 
-            try {
-                conn.shutdown();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        };
+    public static Response getResponse() throws IOException {
+        try {
+            Object obj = conn.receive();
+            if (obj instanceof Response) 
+                return (Response) obj; 
+        } catch (EOFException | ClassNotFoundException  e) {
+            System.out.println("Server down");
+        }
+        return new RespEmpty();
+    }
 
-        Thread receivingThread = new Thread (() -> {
-            while (conn.isOn()) {
-                try {
-                    String str = conn.getMessage();
-                    if(str.length() > 0)
-                        System.out.println(str);
-                } catch (Exception ignored) {}
-            }
-        });
+    public static void login (String account, String password) throws IOException, NoSuchAlgorithmException {
+        conn.send(new ReqAcc(account, password, RequestType.LOGIN));
+    }
 
-        receivingThread.start();
-        messaging.run(); 
-        in.close();
+    public static void exit () throws IOException {
+        if (conn.isOn()) {  
+            conn.send(new ReqExit());
+            conn.shutdown();
+        }
+    }
+
+    public static void sendMessage (String sendTo, String message) throws IOException {
+        conn.send(new ReqMessage(username, sendTo, message));
+        updateChatLog(sendTo, message);
+    }
+
+    public static void askForList() {
+        try {
+            sendRequest(new ReqList(username));
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
