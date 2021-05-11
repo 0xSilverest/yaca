@@ -10,9 +10,17 @@ public class ResponseParser extends Thread {
     public static void parseReponse(Response resp) {
         switch (resp.getResponseType()) {
             case MESSAGE:
-                //TODO add unread 
+                //TODO add unread
                 RespMessage respMsg = (RespMessage) resp;
                 new Thread(() -> Client.updateChatLog(respMsg.getSender(), UserMessage.retrieve(respMsg))).start();
+                break;
+
+            case BROADCAST: 
+                new Thread(() -> 
+                        Client
+                        .updateGroupChat(
+                            UserMessage.retrieve((RespMessage) resp))
+                        ).start();
                 break;
 
             case SENDFILE:

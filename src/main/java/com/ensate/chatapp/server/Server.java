@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.ensate.chatapp.interact.RespMessage;
 import com.ensate.chatapp.interact.Response;
 import com.ensate.chatapp.server.db.DBApi;
 
@@ -28,7 +27,7 @@ public class Server {
     }
 
     public static void broadcast (Response resp) {
-        userSock.values().forEach(x -> {
+        userSock.values().parallelStream().forEach(x -> {
             try {
                x.send(resp);    
             } catch (IOException e) {}

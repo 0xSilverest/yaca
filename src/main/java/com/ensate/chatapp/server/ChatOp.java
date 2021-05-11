@@ -81,7 +81,7 @@ class SendMessage implements ChatOp {
             if (Server.hasSocketFor(req.getSendTo())) 
                 Server
                     .getSocketFor(req.getSendTo())
-                    .send(new RespMessage(req.getSender(), req.getMsg()));
+                    .send(new RespMessage(req.getSender(), req.getMsg(), ResponseType.MESSAGE));
             else 
                 Server
                     .getSocketFor(req.getSender())
@@ -102,7 +102,7 @@ class Broadcast implements ChatOp {
 
     @Override
     public void execute () {
-        Server.broadcast(new RespMessage(req.getSender(), req.getMsg()));
+        Server.broadcast(new RespMessage(req.getSender(), req.getMsg(), ResponseType.BROADCAST));
         System.out.println(req);        
     }
 }

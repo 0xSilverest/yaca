@@ -18,6 +18,25 @@ import com.ensate.chatapp.client.Client;
 import com.ensate.chatapp.client.UserMessage;
 
 public class ChatController implements Initializable {
+    public static void updateList() {
+        Platform.runLater(() -> connectedList.setAll(Client.getOnlineUsers()));
+    }
+
+    public static void updateChat() {
+        new Thread (() -> 
+            Platform
+                .runLater(() -> { 
+                        if (groupSelected) {
+                            messages
+                                .setAll(Client.getGeneralChat());
+                        } else {
+                            messages
+                                .setAll(Client.getChatLogFor(currentSelectedContact));
+                        }    
+                    })
+        ).start();
+    }
+
     @FXML
     private ListView<String> connectedView;
 
@@ -36,39 +55,21 @@ public class ChatController implements Initializable {
     @FXML
     private Button discBtn;
 
+    @FXML
+    private Button generalBtn;
+   
+    private static boolean groupSelected=true;
     private static ObservableList<String> connectedList = FXCollections.observableArrayList();
     private static ObservableList<UserMessage> messages = FXCollections.observableArrayList();
     private static String currentSelectedContact;
-
-    @Override 
-    public void initialize (URL url, ResourceBundle resources) {
-        sendBtn.setOnAction((event) -> sendMessageEvent());
-        discBtn.setOnAction((event) -> disconnect());
-
-        message.setOnKeyPressed((keyEvent) -> 
-                EventCreator.create (
-                    KeyCode.ENTER, 
-                    () -> sendMessageEvent()  
-                )); 
-
-        connectedView
-            .getSelectionModel()
-            .selectedItemProperty()
-            .addListener((listener) -> {
-                currentSelectedContact = connectedView.getSelectionModel().getSelectedItem(); 
-
-                System.out.println(currentSelectedContact);
-                updateChat();
-            });
-
-        connectedView.setItems(connectedList);
     
-        messagesView.setItems(messages);
-    }
-
     private void sendMessageEvent() {
         try {
-            Client.sendMessage(currentSelectedContact, message.getText());
+            if (!groupSelected) {
+                Client.sendMessage(currentSelectedContact, message.getText());
+            } else {
+                Client.broadcast(message.getText());
+            }
             message.clear();    
             updateChat();
         } catch (IOException e) {
@@ -86,16 +87,30 @@ public class ChatController implements Initializable {
         }
     }
 
-    public static void updateList() {
-        Platform.runLater(() -> connectedList.setAll(Client.getOnlineUsers()));
+    @Override 
+    public void initialize (URL url, ResourceBundle resources) {
+        connectedView
+            .getSelectionModel()
+            .selectedItemProperty()
+            .addListener((listener) -> {
+                groupSelected = false;
+                currentSelectedContact = connectedView.getSelectionModel().getSelectedItem(); 
+                System.out.println(currentSelectedContact);
+                updateChat();
+            });
+
+        connectedView.setItems(connectedList);
+    
+        messagesView.setItems(messages);
+
+        message.setOnKeyPressed(
+                EventCreator.create (
+                    KeyCode.ENTER, 
+                    () -> sendMessageEvent()  
+                )); 
+
+        sendBtn.setOnAction((event) -> sendMessageEvent());
+        discBtn.setOnAction((event) -> disconnect());
     }
 
-    public static void updateChat() {
-        new Thread (() -> {
-            Platform
-                .runLater(() -> 
-                        messages
-                            .setAll(Client.getChatLogFor(currentSelectedContact)));    
-        }).start();
-    }
 }

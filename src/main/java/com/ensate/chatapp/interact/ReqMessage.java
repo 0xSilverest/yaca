@@ -5,8 +5,8 @@ public class ReqMessage extends Request {
     private String sendTo;
     private String message;
     
-    public ReqMessage(String sentFrom, String sendTo, String message) {
-        this.reqType  = RequestType.SENDMES;
+    public ReqMessage(RequestType reqType, String sentFrom, String sendTo, String message) {
+        this.reqType  = reqType;
         this.sentFrom = sentFrom;
         this.sendTo   = sendTo;
         this.message  = message;

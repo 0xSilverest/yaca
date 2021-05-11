@@ -4,10 +4,10 @@ public class RespMessage extends Response {
     private final String sender;
     private final String msg;
 
-    public RespMessage (String sender, String msg) {
+    public RespMessage (String sender, String msg, ResponseType responseType) {
         this.sender = sender;
         this.msg = msg;
-        this.responseType = ResponseType.MESSAGE;
+        this.responseType = responseType;
     }
 
     public String getSender() {
