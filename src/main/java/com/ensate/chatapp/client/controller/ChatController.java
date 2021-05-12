@@ -14,6 +14,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 
+import com.ensate.chatapp.client.App;
 import com.ensate.chatapp.client.Client;
 import com.ensate.chatapp.client.UserMessage;
 
@@ -23,18 +24,15 @@ public class ChatController implements Initializable {
     }
 
     public static void updateChat() {
-        new Thread (() -> 
-            Platform
-                .runLater(() -> { 
-                        if (groupSelected) {
-                            messages
-                                .setAll(Client.getGeneralChat());
-                        } else {
-                            messages
-                                .setAll(Client.getChatLogFor(currentSelectedContact));
-                        }    
-                    })
-        ).start();
+        Platform.runLater(() -> {
+            if (groupSelected) {
+                messages
+                    .setAll(Client.getGeneralChat());
+            } else {
+                messages
+                    .setAll(Client.getChatLogFor(currentSelectedContact));    
+            }
+        });
     }
 
     @FXML
@@ -58,6 +56,12 @@ public class ChatController implements Initializable {
     @FXML
     private Button generalBtn;
    
+    @FXML 
+    private Button sendFileBtn;
+
+    @FXML
+    private Button groupeChatBtn;
+
     private static boolean groupSelected=true;
     private static ObservableList<String> connectedList = FXCollections.observableArrayList();
     private static ObservableList<UserMessage> messages = FXCollections.observableArrayList();
@@ -87,6 +91,10 @@ public class ChatController implements Initializable {
         }
     }
 
+    private void sendFileEvent() {
+        App.callFileChooser();
+    }
+
     @Override 
     public void initialize (URL url, ResourceBundle resources) {
         connectedView
@@ -109,8 +117,15 @@ public class ChatController implements Initializable {
                     () -> sendMessageEvent()  
                 )); 
 
+        groupeChatBtn.setOnAction((event) -> {
+            connectedView.getSelectionModel().clearSelection();
+            groupSelected = true;
+            updateChat();
+        });
+
+        sendFileBtn.setOnAction((event) -> sendFileEvent());
+
         sendBtn.setOnAction((event) -> sendMessageEvent());
         discBtn.setOnAction((event) -> disconnect());
     }
-
 }

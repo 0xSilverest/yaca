@@ -52,6 +52,22 @@
                        -fx-border-radius: 5px;
                        -fx-text-fill: white;"
                 text="" />
+            <Button fx:id="sendFileBtn" 
+                layoutX="551.0" layoutY="4.0" 
+                prefHeight="26.0" prefWidth="39.0"
+                style="-fx-background-color: #1e2127;
+                       -fx-border-color: white;                        
+                       -fx-border-radius: 5px;                        
+                       -fx-text-fill: white;" 
+                text=""/>
+            <Button fx:id="groupeChatBtn"
+                layoutX="7.0" layoutY="4.0"
+                prefHeight="10.0" prefWidth="135.0"
+                style="-fx-background-color: #1e2127;
+                       -fx-border-color: white;
+                       -fx-border-radius: 5px;
+                       -fx-text-fill: white;"
+                text="General Chat" />
             <ListView fx:id="messagesView"
                 layoutX="146.0" layoutY="34.0"
                 prefHeight="315.0" prefWidth="488.0" />

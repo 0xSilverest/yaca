@@ -1,9 +1,11 @@
 package com.ensate.chatapp.client;
 
+import java.io.File;
 import java.io.IOException;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -29,7 +31,14 @@ public class App extends Application {
 
         window.show();
     }
- 
+
+    public static void callFileChooser() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select file to send");
+        File selectedFile = fileChooser.showOpenDialog(window);
+
+    }
+
     public static void switchScene(String sceneNameFxml) {
         try {
             window.setScene(new Scene(loadFXML(sceneNameFxml)));

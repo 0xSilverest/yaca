@@ -25,6 +25,8 @@ public class ResponseParser extends Thread {
 
             case SENDFILE:
                 //TODO call TextArea and give hyperlink for file
+                RespSendFile respF = (RespSendFile) resp;
+                respF.downloadFile();
                 break;
 
             case UPDATELIST:
