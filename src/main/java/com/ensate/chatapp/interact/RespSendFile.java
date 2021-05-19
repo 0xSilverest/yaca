@@ -1,31 +1,26 @@
 package com.ensate.chatapp.interact;
 
-import java.io.*;
+import java.time.LocalDateTime;
 
-public class RespSendFile extends Response {
-    private String sender;
+public class RespSendFile extends RespMessage {
     private byte[] file;
+    private String fileName;
 
     public static RespSendFile fromReq(ReqSendFile sendFile) {
-        return new RespSendFile(sendFile.getSender(), sendFile.getFile());
+        return new RespSendFile(sendFile.getTime(), sendFile.getSender(), sendFile.getMsg(), sendFile.getFileName(), sendFile.getFile());
     }
 
-    public RespSendFile (String sender, byte[] file) {
-        this.sender = sender;
+    public RespSendFile (LocalDateTime t, String sender, String msg, String fileName, byte[] file) {
+        super (t, sender, msg, ResponseType.SENDFILE); 
+        this.fileName = fileName;
         this.file = file;
-        this.responseType = ResponseType.SENDFILE; 
     }
-   
-    public void downloadFile() {
-        File path = new File("/home/silverest/demo.txt");
- 
-        try { 
-            OutputStream os = new FileOutputStream(path);
-            os.write(file);
-            System.out.println("Write bytes to file.");
-            os.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public byte[] getFile() {
+        return file;
     }
 }

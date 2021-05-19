@@ -7,70 +7,22 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="400.0" prefWidth="640.0" 
-    xmlns="http://javafx.com/javafx/16" 
-    xmlns:fx="http://javafx.com/fxml/1" 
-    fx:controller="com.ensate.chatapp.client.controller.ChatController">
+<VBox prefHeight="572.0" prefWidth="868.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ensate.chatapp.client.controller.ChatController">
   <children>
-      <AnchorPane 
-          maxHeight="-1.0" maxWidth="-1.0"
-          prefHeight="373.0" prefWidth="576.0" 
-          style="-fx-background-color: 
-                #1e2127;" 
-          VBox.vgrow="ALWAYS">
+      <AnchorPane maxHeight="606.0" maxWidth="868.0" prefHeight="606.0" prefWidth="868.0" styleClass="body" VBox.vgrow="ALWAYS">
       <children>
-          <Button fx:id="sendBtn" 
-              layoutX="550.0" layoutY="354.0" 
-              prefHeight="40.0" prefWidth="85.0" 
-              mnemonicParsing="false" 
-              style="-fx-background-color: #1e2127;
-                     -fx-text-fill: white;
-                     -fx-border-color: white;
-                     -fx-border-radius: 5px;"
-              text="Envoyer" 
-              textAlignment="CENTER"
-              wrapText="true">
+          <Button fx:id="sendBtn" layoutX="777.0" layoutY="524.0" prefHeight="40.0" prefWidth="85.0" styleClass="button" text="Envoyer" textAlignment="CENTER" wrapText="true">
                <font>
                   <Font name="Iosevka" size="15.0" />
                 </font>
             </Button>
-            <TextField fx:id="message" 
-                layoutX="146.0" layoutY="353.0" 
-                prefHeight="40.0" prefWidth="399.0" />
-            <ListView fx:id="connectedView"
-                layoutX="7.0" layoutY="63.0" 
-                prefHeight="330.0" prefWidth="135.0" />
-            <TextField fx:id="search" 
-                layoutX="7.0" layoutY="34.0" 
-                prefHeight="24.0" prefWidth="135.0" />
-            <Button fx:id="discBtn" 
-                layoutX="603.0" layoutY="4.0" 
-                prefHeight="24.0" prefWidth="27.0" 
-                mnemonicParsing="false" 
-                style="-fx-background-color: #1e2127;                       
-                       -fx-border-color: white;
-                       -fx-border-radius: 5px;
-                       -fx-text-fill: white;"
-                text="" />
-            <Button fx:id="sendFileBtn" 
-                layoutX="551.0" layoutY="4.0" 
-                prefHeight="26.0" prefWidth="39.0"
-                style="-fx-background-color: #1e2127;
-                       -fx-border-color: white;                        
-                       -fx-border-radius: 5px;                        
-                       -fx-text-fill: white;" 
-                text=""/>
-            <Button fx:id="groupeChatBtn"
-                layoutX="7.0" layoutY="4.0"
-                prefHeight="10.0" prefWidth="135.0"
-                style="-fx-background-color: #1e2127;
-                       -fx-border-color: white;
-                       -fx-border-radius: 5px;
-                       -fx-text-fill: white;"
-                text="General Chat" />
-            <ListView fx:id="messagesView"
-                layoutX="146.0" layoutY="34.0"
-                prefHeight="315.0" prefWidth="488.0" />
+            <TextField fx:id="message" layoutX="174.0" layoutY="524.0" prefHeight="40.0" prefWidth="599.0" promptText="Message ..." styleClass="text-field" />
+            <ListView fx:id="connectedView" layoutX="7.0" layoutY="66.0" prefHeight="498.0" prefWidth="160.0" styleClass="chatArea" />
+            <TextField fx:id="search" layoutX="7.0" layoutY="35.0" prefHeight="26.0" prefWidth="160.0" promptText="Search" styleClass="text-field" />
+            <Button fx:id="discBtn" layoutX="830.0" layoutY="4.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="27.0" styleClass="button" text="" />
+            <Button fx:id="sendFileBtn" layoutX="785.0" layoutY="4.0" prefHeight="26.0" prefWidth="39.0" styleClass="button" text="" />
+            <Button fx:id="groupChatBtn" layoutX="7.0" layoutY="4.0" prefHeight="26.0" prefWidth="160.0" styleClass="button" text="General Chat" />
+            <ListView fx:id="messagesView" layoutX="174.0" layoutY="39.0" prefHeight="480.0" prefWidth="687.0" />
       </children>
     </AnchorPane>
   </children>

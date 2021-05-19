@@ -1,0 +1,39 @@
+.button {
+    -fx-background-color: #1e2127;
+    -fx-text-fill: white;
+    -fx-border-color: white;
+    -fx-border-radius: 10px;
+}
+
+.button:hover { 
+    -fx-background-color: white;
+    -fx-text-fill: #1e2127;
+}
+
+.body {
+    -fx-background-color: #1e2127;
+}
+
+.text-field {
+    -fx-background-color: -fx-text-box-border, #1e2127 ; 
+    -fx-text-fill: white;
+    -fx-background-insets: 0, 0 0 2 0 ;
+    -fx-background-radius: 0px;
+    -fx-font-size: 15px;
+}
+.text-field:focused {
+    -fx-background-color: -fx-text-box-border, #1e2127 ; 
+    -fx-text-fill: white;
+}
+
+.text {
+    -fx-text-fill: white;
+}
+
+.chatArea { 
+    -fx-control-inner-background: white;
+    -fx-text-fill: #1e2127;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+}
+

@@ -1,31 +1,22 @@
 package com.ensate.chatapp.interact;
 
-public class ReqSendFile extends Request {
-    private String sentFrom;
-    private String sendTo;
-    private byte[] file;
+import java.time.LocalDateTime;
 
-    public ReqSendFile (String sentFrom, String sendTo, byte[] file) {
-        this.sentFrom = sentFrom;
-        this.sendTo = sendTo;
+public class ReqSendFile extends ReqMessage {
+    private final String fileName;
+    private final byte[] file;
+
+    public ReqSendFile (LocalDateTime t, String sentFrom, String sendTo, String message, String fileName, byte[] file) {
+        super (t, RequestType.SENDFILE, sentFrom, sendTo, message);
+        this.fileName = fileName;
         this.file = file;
-        this.reqType = RequestType.SENDFILE;
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
     public byte[] getFile() {
         return file;
-    }
-
-    public String getSendTo() {
-        return sendTo;
-    }
-
-    public String getSender() {
-        return sentFrom;
-    }
-
-    @Override
-    public void send(){
-
     }
 }

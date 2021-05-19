@@ -6,7 +6,5 @@ public abstract class Request implements Message {
     public RequestType getReqType() {
         return reqType;
     }
-
-    public abstract void send();
 }
 

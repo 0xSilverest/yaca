@@ -1,13 +1,21 @@
 package com.ensate.chatapp.interact;
 
+import java.time.LocalDateTime;
+
 public class RespMessage extends Response {
+    private final LocalDateTime t;
     private final String sender;
     private final String msg;
 
-    public RespMessage (String sender, String msg, ResponseType responseType) {
+    public RespMessage (LocalDateTime t, String sender, String msg, ResponseType responseType) {
+        this.t = t;
         this.sender = sender;
         this.msg = msg;
         this.responseType = responseType;
+    }
+
+    public LocalDateTime getTime() {
+        return t;
     }
 
     public String getSender() {

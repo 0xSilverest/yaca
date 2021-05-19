@@ -11,9 +11,4 @@ public class ReqList extends Request {
     public String getUsername () {
         return username;
     }
-
-    @Override
-    public void send(){
-
-    }
 }

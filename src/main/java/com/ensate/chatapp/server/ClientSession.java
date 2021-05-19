@@ -52,12 +52,12 @@ public class ClientSession extends Thread {
             }
 
             case DISC : 
+                chatOp = new Disconnect(session.getUsername());
                 break;
 
             case EXIT : 
-                Server.removeUser(session.getUsername());
-                Server.broadcast(new RespUpdateList(Server.getConnectedList()));
                 conn.shutdown();
+                chatOp = new Disconnect(session.getUsername());
                 break;
 
             case EMPTY :
@@ -81,7 +81,7 @@ public class ClientSession extends Thread {
                     menu(query);
                 }
             } catch (EOFException | SocketException e) {
-                System.out.println("Client " + session.getId() + " interrupted");
+                System.out.println("Client " + session.getUsername() + " interrupted");
                 query = new ReqExit();
             } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException e) {
                 e.printStackTrace();
@@ -89,10 +89,8 @@ public class ClientSession extends Thread {
         }                      
 
         try {
-            Server.removeUser(session.getUsername());
-            Server.broadcast(new RespUpdateList(Server.getConnectedList()));
-            conn.shutdown();
-        } catch (IOException ex) {
+            menu(new ReqExit());
+        } catch (IOException | NoSuchAlgorithmException ex) {
             ex.printStackTrace();
         }
     }

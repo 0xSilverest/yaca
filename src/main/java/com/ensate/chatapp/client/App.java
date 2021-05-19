@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.Parent;
@@ -32,11 +33,16 @@ public class App extends Application {
         window.show();
     }
 
-    public static void callFileChooser() {
+    public static File callFileChooser() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select file to send");
-        File selectedFile = fileChooser.showOpenDialog(window);
-
+        return fileChooser.showOpenDialog(window);
+    }
+    
+    public static File callDirChooser() {
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setTitle("Select dir to save in");
+        return dirChooser.showDialog(window);
     }
 
     public static void switchScene(String sceneNameFxml) {

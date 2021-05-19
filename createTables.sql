@@ -1,0 +1,6 @@
+CREATE OR REPLACE USERS (
+    Id INTEGER NOT NULL AUTO INCREMENT;
+    image BLOB;
+    username VARCHAR(64) NOT NULL;
+    password VARCHAR(64) NOT NULL;
+)

@@ -37,7 +37,8 @@ public class LoginController implements Initializable {
         loginBtn.setOnAction((event) -> loginEvent());
         exitBtn.setOnAction((event) -> exitEvent());
 
-        List.of(accName,password).stream().forEach(x ->
+        List.of(accName,password).stream()
+            .forEach(x ->
             x.setOnKeyPressed(
                 EventCreator.create (
                     KeyCode.ENTER, 
@@ -48,14 +49,16 @@ public class LoginController implements Initializable {
 
     private void loginEvent() { 
         try {
-        String acc = accName.getText();
-        Client.login(acc, password.getText());
-        if (Client.getResponse().getResponseType().equals(ResponseType.SUCC)) {
-            Client.setUsername(acc);
-            new ResponseParser().start();
-            App.switchScene("chatapp");
-        }
+            String acc = accName.getText();
+            Client.login(acc, password.getText());
+            if (Client.getResponse().getResponseType().equals(ResponseType.SUCC)) {
+                Client.setUsername(acc);
+                new ResponseParser().start();
+                App.switchScene("chatapp");
+                Client.loadMessages();
+            }
         } catch (NoSuchAlgorithmException 
+                | ClassNotFoundException
                 | IOException e) {
             e.printStackTrace();
         }
