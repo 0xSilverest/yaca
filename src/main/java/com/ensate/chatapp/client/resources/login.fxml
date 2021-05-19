@@ -13,32 +13,33 @@
     prefHeight="420.0" prefWidth="361.0" 
     xmlns="http://javafx.com/javafx/16" 
     xmlns:fx="http://javafx.com/fxml/1" 
+    stylesheets="@style.css" 
     fx:controller="com.ensate.chatapp.client.controller.LoginController">
    <children>
-      <AnchorPane prefHeight="465.0" prefWidth="434.0" >
+      <AnchorPane styleClass='body' prefHeight="465.0" prefWidth="434.0" >
          <children>
-             <TextField fx:id="accName" 
+             <TextField styleClass='text-field' fx:id="accName" 
                  layoutX="33.0" layoutY="165.0" 
                  prefHeight="38.0" prefWidth="304.0" 
                  promptText="nom compte" />
-             <PasswordField fx:id="password" 
+             <PasswordField styleClass='text-field' fx:id="password" 
                  layoutX="33.0" layoutY="222.0" 
                  prefHeight="44.0" prefWidth="304.0" 
                  promptText="mot de passe" />
-             <CheckBox 
+             <CheckBox styleClass='text' 
                  layoutX="33.0" layoutY="285.0" 
                  mnemonicParsing="false" text="Se rappeler" />
-             <Button fx:id="loginBtn"
+             <Button styleClass='button' fx:id="loginBtn"
                  layoutX="33.0" layoutY="312.0" 
                  mnemonicParsing="true" 
                  prefHeight="38.0" prefWidth="147.0" 
                  text="_Se Connecter" />
-             <Button fx:id="exitBtn"
+             <Button styleClass='button' fx:id="exitBtn"
                  layoutX="190.0" layoutY="312.0" 
                  mnemonicParsing="true" 
                  prefHeight="38.0" prefWidth="147.0" 
                  text="_Quitter" />
-             <Button
+             <Button styleClass='button'
                  layoutX="33.0" layoutY="358.0" 
                  mnemonicParsing="false" 
                  prefHeight="38.0" prefWidth="304.0" 

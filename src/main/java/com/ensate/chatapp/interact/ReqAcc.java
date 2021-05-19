@@ -21,7 +21,4 @@ public class ReqAcc extends Request {
     public String getPw() {
         return pw;
     }
-
-    @Override 
-    public void send() {}
 }

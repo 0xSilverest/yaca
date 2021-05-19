@@ -1,6 +1,8 @@
 package com.ensate.chatapp.server.db;
 
 import java.sql.*;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DBApi {
     private static Connection dbh;
@@ -26,6 +28,19 @@ public class DBApi {
 
     public static Statement createStatement() throws SQLException {
         return dbh.createStatement();
+    }
+
+    public static Set<String> loadUsers() {
+        HashSet<String> users = new HashSet<>();
+        try {
+            ResultSet rs = execQuery("SELECT * FROM USERS;"); 
+            while (rs.next()) {
+                users.add(rs.getString("username"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
     }
 }
 

@@ -6,9 +6,9 @@ import java.util.Set;
 public class RespUpdateList extends Response {
     private Set<String> loggedIns = new HashSet<>();
 
-    public RespUpdateList (Set<String> loggedIns) {
+    public RespUpdateList (Set<String> loggedIns, ResponseType rt) {
         this.loggedIns = loggedIns;
-        this.responseType = ResponseType.UPDATELIST;
+        this.responseType = rt;
     }
 
     public Set<String> getLoggedIns() {

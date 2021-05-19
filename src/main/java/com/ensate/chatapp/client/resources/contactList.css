@@ -1,0 +1,13 @@
+.list-cell:odd {
+    -fx-control-inner-background: white;
+    -fx-text-fill : #1e2127;
+}
+
+.list-cell{
+    -fx-selection-bar: #46526b;
+}
+
+.list-cell:even {
+    -fx-control-inner-background: white;
+    -fx-text-fill : #1e2127;
+}

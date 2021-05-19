@@ -2,6 +2,7 @@ package com.ensate.chatapp.server;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.stream.Collectors;
 
 import com.ensate.chatapp.server.db.*;
 import com.ensate.chatapp.utils.StringUtils;
@@ -26,9 +27,10 @@ class Register implements ChatOp {
     @Override
     public void execute() {
         try {
-            if (UserDb.createUser(username, pw))
+            if (UserDb.createUser(username, pw)) {
                 conn.send(new RespSucc());
-            else   
+                Server.addUser(username);
+            } else   
                 conn.send(new RespFail("Username already in use"));
         } catch (SQLException | IOException e) {
             e.printStackTrace();
@@ -53,11 +55,16 @@ class Authentificate implements ChatOp {
     public void execute() {
         try {
             if (UserDb.authentificate(username, pw)) {
-                System.out.println(username);
                 conn.send(new RespSucc());
                 session.assign(StringUtils.randomGen(), username);
                 Server.addSocketFor(username, conn);
-                Server.broadcast(new RespUpdateList(Server.getConnectedList()));
+                conn.send(new RespUpdateList(
+                            Server.getUsers().stream()
+                            .filter(x->
+                                !x.equals(username))
+                            .collect(Collectors.toSet())
+                            , ResponseType.USERSLIST));
+                Server.broadcast(new RespUpdateList(Server.getConnectedList(), ResponseType.UPDATELIST));
             } else if (Server.isConnected(username)) 
                 conn.send(new RespFail("User already connected."));
             else 
@@ -81,7 +88,7 @@ class SendMessage implements ChatOp {
             if (Server.hasSocketFor(req.getSendTo())) 
                 Server
                     .getSocketFor(req.getSendTo())
-                    .send(new RespMessage(req.getSender(), req.getMsg()));
+                    .send(new RespMessage(req.getTime(), req.getSender(), req.getMsg(), ResponseType.MESSAGE));
             else 
                 Server
                     .getSocketFor(req.getSender())
@@ -102,7 +109,7 @@ class Broadcast implements ChatOp {
 
     @Override
     public void execute () {
-        Server.broadcast(new RespMessage(req.getSender(), req.getMsg()));
+        Server.broadcast(new RespMessage(req.getTime(), req.getSender(), req.getMsg(), ResponseType.BROADCAST));
         System.out.println(req);        
     }
 }
@@ -119,7 +126,7 @@ class ListUsers implements ChatOp {
         try {
             Server
                 .getSocketFor(req.getUsername())
-                .send(new RespUpdateList(Server.getConnectedList())); 
+                .send(new RespUpdateList(Server.getConnectedList(), ResponseType.UPDATELIST)); 
         } catch (IOException e) {
             e.printStackTrace();
         }   
@@ -137,6 +144,24 @@ class SendFile implements ChatOp {
     public void execute () {
         try {
             Server.getSocketFor(req.getSendTo()).send(RespSendFile.fromReq(req));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+class Disconnect implements ChatOp {
+    private final String username;
+
+    Disconnect (String username) {
+        this.username = username;
+    }
+
+    @Override
+    public void execute() {
+        try {
+            Server.removeUser(username);
+            Server.broadcast(new RespUpdateList(Server.getConnectedList(), ResponseType.UPDATELIST));
         } catch (IOException e) {
             e.printStackTrace();
         }
