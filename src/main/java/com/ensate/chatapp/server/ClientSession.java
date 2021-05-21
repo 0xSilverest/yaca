@@ -46,6 +46,11 @@ public class ClientSession extends Thread {
                 break;
             }
 
+            case BROADCASTFILE : {
+                chatOp = new BroadcastFile((ReqSendFile) req);
+                break;
+            }
+
             case ASKLIST : {
                 chatOp = new ListUsers((ReqList) req);
                 break;
