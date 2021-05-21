@@ -76,16 +76,19 @@ public class ChatController implements Initializable {
     private static String currentSelectedContact;
     
     private void sendMessageEvent() {
-        try {
-            if (!groupSelected) {
-                Client.sendMessage(LocalDateTime.now(), currentSelectedContact, message.getText());
-            } else {
-                Client.broadcast(LocalDateTime.now(), message.getText());
+        String msg = message.getText();
+        if (!msg.isBlank()) {
+            try {
+                if (!groupSelected) {
+                    Client.sendMessage(LocalDateTime.now(), currentSelectedContact, msg);
+                } else {
+                    Client.broadcast(LocalDateTime.now(), msg);
+                }
+                message.clear();    
+                updateChat();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            message.clear();    
-            updateChat();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
     
@@ -102,9 +105,12 @@ public class ChatController implements Initializable {
     private void sendFileEvent() {
         File selectedFile = App.callFileChooser();
 
-        if (selectedFile != null && groupSelected) {
+        if (selectedFile != null) {
             try { 
-                Client.sendFile(LocalDateTime.now(), currentSelectedContact, selectedFile.getName(), Files.readAllBytes(Paths.get(selectedFile.getPath())));
+                if (groupSelected) 
+                    Client.broadcastFile(LocalDateTime.now(), selectedFile.getName(), Files.readAllBytes(Paths.get(selectedFile.getPath())));
+                else
+                    Client.sendFile(LocalDateTime.now(), currentSelectedContact, selectedFile.getName(), Files.readAllBytes(Paths.get(selectedFile.getPath())));
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }

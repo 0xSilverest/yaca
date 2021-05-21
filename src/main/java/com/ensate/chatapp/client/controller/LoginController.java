@@ -1,5 +1,6 @@
 package com.ensate.chatapp.client.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
@@ -17,6 +18,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 
 public class LoginController implements Initializable {
@@ -31,11 +34,19 @@ public class LoginController implements Initializable {
 
     @FXML
     private PasswordField password;
- 
+
+    @FXML
+    private ImageView imageView;
+
     @Override 
     public void initialize (URL url, ResourceBundle resources) {
         loginBtn.setOnAction((event) -> loginEvent());
         exitBtn.setOnAction((event) -> exitEvent());
+        
+        File file = new File("pics/logo.png");
+        Image image = new Image(file.toURI().toString());
+        imageView.setImage(image);
+        centerImage();
 
         List.of(accName,password).stream()
             .forEach(x ->
@@ -47,6 +58,31 @@ public class LoginController implements Initializable {
             );
     }
 
+    public void centerImage() {
+        Image img = imageView.getImage();
+        if (img != null) {
+            double w = 0;
+            double h = 0;
+
+            double ratioX = imageView.getFitWidth() / img.getWidth();
+            double ratioY = imageView.getFitHeight() / img.getHeight();
+
+            double reducCoeff = 0;
+            if(ratioX >= ratioY) {
+                reducCoeff = ratioY;
+            } else {
+                reducCoeff = ratioX;
+            }
+
+            w = img.getWidth() * reducCoeff;
+            h = img.getHeight() * reducCoeff;
+
+            imageView.setX((imageView.getFitWidth() - w) / 2);
+            imageView.setY((imageView.getFitHeight() - h) / 2);
+
+        }
+    }
+
     private void loginEvent() { 
         try {
             String acc = accName.getText();
@@ -56,6 +92,7 @@ public class LoginController implements Initializable {
                 new ResponseParser().start();
                 App.switchScene("chatapp");
                 Client.loadMessages();
+                Client.loadGeneralChat();
             }
         } catch (NoSuchAlgorithmException 
                 | ClassNotFoundException

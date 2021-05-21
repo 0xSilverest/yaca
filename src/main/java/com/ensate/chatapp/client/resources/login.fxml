@@ -44,7 +44,7 @@
                  mnemonicParsing="false" 
                  prefHeight="38.0" prefWidth="304.0" 
                  text="Mot de passe oublier" />
-             <ImageView 
+             <ImageView fx:id='imageView'
                  fitHeight="128.0" fitWidth="290.0" 
                  layoutX="40.0" layoutY="19.0" 
                  pickOnBounds="true" preserveRatio="true" />

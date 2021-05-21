@@ -25,16 +25,12 @@ public class ResponseParser extends Thread {
                 RespSendFile respF = (RespSendFile) resp;
                 Client.updateChatLog(
                         respF.getSender(), 
-                        new FileMessage(
-                            respF.getTime(), 
-                            respF.getSender(), 
-                            respF.getMsg(), 
-                            respF.getFileName(), 
-                            respF.getFile()));
+                        FileMessage.fromResp((RespSendFile) resp)
+                        );
+                System.out.println(respF.getFileName());
                 break;
 
             case UPDATELIST:
-                
                 Client
                 .updateOnlineUsers(
                     ((RespUpdateList) resp)
@@ -52,6 +48,10 @@ public class ResponseParser extends Thread {
                 Client.askForList();
                 break;
                 
+            case BROADCASTFILE:
+                Client.updateGroupChat(FileMessage.fromResp((RespSendFile) resp));
+                break;
+
             case SUCC:
                 System.out.println("success");
                 break;

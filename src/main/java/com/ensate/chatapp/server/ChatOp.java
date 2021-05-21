@@ -150,6 +150,19 @@ class SendFile implements ChatOp {
     }
 }
 
+class BroadcastFile implements ChatOp {
+    private final ReqSendFile req;
+
+    BroadcastFile (ReqSendFile req) {
+        this.req = req;
+    }
+
+    @Override
+    public void execute() {
+        Server.broadcast(RespSendFile.fromReq(req));
+    }
+}
+
 class Disconnect implements ChatOp {
     private final String username;
 

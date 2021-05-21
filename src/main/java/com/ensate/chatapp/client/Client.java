@@ -23,6 +23,10 @@ public class Client {
     public static void loadMessages (HashMap<String, ArrayList<UserMessage>> loadedChatLog) {
         chatLog = loadedChatLog ;
     }
+    
+    public static void loadGeneralChat (List<UserMessage> general) {
+        groupChat = general;
+    }
 
     public static void updateOnlineUsers(Set<String> onlines) {
         List<Contact> cpList = List.copyOf(onlineUsers);
@@ -80,13 +84,14 @@ public class Client {
         if (conn.isOn()) {  
             conn.send(new ReqExit());
             FileUtils.serialize(chatLog, username + ".log");
+            FileUtils.serialize(groupChat, "general.log");
             conn.shutdown();
         }
     }
 
     public static void sendMessage (LocalDateTime t, String sendTo, String message) throws IOException {
         conn.send(new ReqMessage(t, RequestType.SENDMES, username, sendTo, message));
-        updateChatLog(sendTo, new UserMessage(t, "you", message));
+        updateChatLog(sendTo, new UserMessage(t, username, message));
     }
 
     public static void broadcast (LocalDateTime t, String message) throws IOException {
@@ -124,6 +129,14 @@ public class Client {
             Client.loadMessages((HashMap<String,ArrayList<UserMessage>>) obj);
         }
     }
+    
+    public static void loadGeneralChat() throws IOException, ClassNotFoundException {
+        Object obj = FileUtils.deserialize("general.log");
+        if (obj != null && obj instanceof ArrayList<?>) {
+            Client.loadGeneralChat((ArrayList<UserMessage>) obj);
+            ChatController.updateChat();
+        }
+    }
 
     public static void shutdown() throws IOException {
         conn.shutdown();
@@ -146,8 +159,15 @@ public class Client {
     }
 
     public static void sendFile(LocalDateTime t, String sendTo, String fileName, byte[] fileBytes) throws IOException, InterruptedException {
-        updateChatLog(sendTo, new FileMessage(t, "you", "placeholder", fileName, fileBytes));
-        conn.send(new ReqSendFile(t, username, sendTo, "placeholder", fileName, fileBytes));
+        updateChatLog(sendTo, new FileMessage(t, username, "placeholder", fileName, fileBytes));
+        conn.send(new ReqSendFile(t, username, sendTo, "placeholder", fileName, fileBytes, RequestType.SENDFILE));
+        System.out.println("sent: " + fileName);
+    }
+
+    public static void broadcastFile(LocalDateTime t, String fileName, byte[] fileBytes) throws IOException, InterruptedException {
+        updateGroupChat(new FileMessage(t, username, "placeholder", fileName, fileBytes));
+        conn.send(new ReqSendFile(t, username, "", "placeholder", fileName, fileBytes, RequestType.BROADCASTFILE));
+        System.out.println("sent: " + fileName);
     }
 
     public static String getUsername() {
