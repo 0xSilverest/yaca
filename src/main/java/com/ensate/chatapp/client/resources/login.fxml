@@ -33,17 +33,17 @@
                  layoutX="33.0" layoutY="312.0" 
                  mnemonicParsing="true" 
                  prefHeight="38.0" prefWidth="147.0" 
-                 text="_Se Connecter" />
+                 text="_Connect" />
              <Button styleClass='button' fx:id="exitBtn"
                  layoutX="190.0" layoutY="312.0" 
                  mnemonicParsing="true" 
                  prefHeight="38.0" prefWidth="147.0" 
-                 text="_Quitter" />
-             <Button styleClass='button'
+                 text="_Exit" />
+             <Button styleClass='button' fx:id='registerBtn'
                  layoutX="33.0" layoutY="358.0" 
                  mnemonicParsing="false" 
                  prefHeight="38.0" prefWidth="304.0" 
-                 text="Mot de passe oublier" />
+                 text='Register' />
              <ImageView fx:id='imageView'
                  fitHeight="128.0" fitWidth="290.0" 
                  layoutX="40.0" layoutY="19.0" 

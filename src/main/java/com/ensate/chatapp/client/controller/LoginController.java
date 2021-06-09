@@ -15,9 +15,11 @@ import com.ensate.chatapp.client.ResponseParser;
 import javafx.fxml.Initializable;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -28,6 +30,9 @@ public class LoginController implements Initializable {
 
     @FXML
     private Button loginBtn;
+
+    @FXML
+    private Button registerBtn;
 
     @FXML
     private TextField accName;
@@ -42,6 +47,9 @@ public class LoginController implements Initializable {
     public void initialize (URL url, ResourceBundle resources) {
         loginBtn.setOnAction((event) -> loginEvent());
         exitBtn.setOnAction((event) -> exitEvent());
+        registerBtn.setOnAction(e -> {
+            App.switchScene("register");
+        });
         
         File file = new File("pics/logo.png");
         Image image = new Image(file.toURI().toString());
@@ -88,15 +96,17 @@ public class LoginController implements Initializable {
             String acc = accName.getText();
             Client.login(acc, password.getText());
             if (Client.getResponse().getResponseType().equals(ResponseType.SUCC)) {
-                Client.setUsername(acc);
-                new ResponseParser().start();
+                Client.init(acc);
                 App.switchScene("chatapp");
                 Client.loadMessages();
                 Client.loadGeneralChat();
+            } else {
+                Alert a = new Alert(AlertType.ERROR, "Error occured");
+                a.show();
             }
-        } catch (NoSuchAlgorithmException 
-                | ClassNotFoundException
-                | IOException e) {
+        } catch (NoSuchAlgorithmException  
+                | IOException
+                | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }

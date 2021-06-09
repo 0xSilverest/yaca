@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity"
+    minHeight="-Infinity" minWidth="-Infinity"
+    prefHeight="426.0" prefWidth="373.0"
+    stylesheets="@style.css" xmlns="http://javafx.com/javafx/16"
+    xmlns:fx="http://javafx.com/fxml/1" 
+    fx:controller="com.ensate.chatapp.client.controller.SignupController">
+   <children>
+       <AnchorPane 
+           prefHeight="456.0" prefWidth="373.0"
+           styleClass="body">
+         <children>
+             <TextField fx:id="accName"
+                 layoutX="35.0" layoutY="65.0"
+                 prefHeight="38.0" prefWidth="304.0"
+                 promptText="nom compte"
+                 styleClass="text-field" />
+             <TextField fx:id="emailField"
+                 layoutX="35.0" layoutY="135.0"
+                 prefHeight="38.0" prefWidth="304.0"
+                 promptText="Email"
+                 styleClass="text-field" />
+             <PasswordField fx:id="password"
+                 layoutX="35.0" layoutY="205.0"
+                 prefHeight="44.0" prefWidth="304.0"
+                 promptText="mot de passe"
+                 styleClass="text-field" />
+             <PasswordField fx:id="password1"
+                 layoutX="35.0" layoutY="278.0"
+                 prefHeight="44.0" prefWidth="304.0"
+                 promptText="mot de passe"
+                 styleClass="text-field" />
+             <Button fx:id="confirmBtn"
+                 layoutX="29.0" layoutY="358.0"
+                 prefHeight="38.0" prefWidth="147.0"
+                 styleClass="button" 
+                 text="Confirm" />
+             <Button fx:id="cancelBtn"
+                 layoutX="199.0" layoutY="358.0"
+                 prefHeight="38.0" prefWidth="147.0"
+                 styleClass="button"
+                 text="Cancel" />
+         </children>
+      </AnchorPane>
+   </children>
+</VBox>

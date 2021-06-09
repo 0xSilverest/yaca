@@ -30,6 +30,7 @@ class Register implements ChatOp {
             if (UserDb.createUser(username, pw)) {
                 conn.send(new RespSucc());
                 Server.addUser(username);
+
             } else   
                 conn.send(new RespFail("Username already in use"));
         } catch (SQLException | IOException e) {
@@ -54,7 +55,7 @@ class Authentificate implements ChatOp {
     @Override
     public void execute() {
         try {
-            if (UserDb.authentificate(username, pw)) {
+            if (UserDb.authentificate(username, pw) && !Server.isConnected(username)) {
                 conn.send(new RespSucc());
                 session.assign(StringUtils.randomGen(), username);
                 Server.addSocketFor(username, conn);
@@ -65,7 +66,7 @@ class Authentificate implements ChatOp {
                             .collect(Collectors.toSet())
                             , ResponseType.USERSLIST));
                 Server.broadcast(new RespUpdateList(Server.getConnectedList(), ResponseType.UPDATELIST));
-            } else if (Server.isConnected(username)) 
+        } else if (Server.isConnected(username)) 
                 conn.send(new RespFail("User already connected."));
             else 
                 conn.send(new RespFail("Wrong username/password"));
@@ -174,6 +175,7 @@ class Disconnect implements ChatOp {
     public void execute() {
         try {
             Server.removeUser(username);
+            Server.removeKey(username);
             Server.broadcast(new RespUpdateList(Server.getConnectedList(), ResponseType.UPDATELIST));
         } catch (IOException e) {
             e.printStackTrace();

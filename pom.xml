@@ -30,10 +30,11 @@
         <artifactId>javafx-fxml</artifactId>
         <version>15.0.1</version>
     </dependency>
+
     <dependency>
-      <groupId>com.jfoenix</groupId>
-      <artifactId>jfoenix</artifactId>
-      <version>9.0.10</version>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-media</artifactId>
+        <version>15.0.1</version>
     </dependency>
 
     <dependency>
@@ -41,6 +42,7 @@
       <artifactId>mariadb-java-client</artifactId>
       <version>2.7.1</version>
     </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
