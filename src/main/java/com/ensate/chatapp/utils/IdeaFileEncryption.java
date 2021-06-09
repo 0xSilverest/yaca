@@ -7,50 +7,90 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
+/**
+* Encrypts or decrypts a file with IDEA.
+* <p>
+* The file format is compatible with that of IDEA V1.1 (IDEA_CMD.C, ETH version).
+* The length of the plaintext data file is appended to the encrypted file in an 8 byte suffix.
+*/
 public class IdeaFileEncryption {
 
     private static final int     blockSize = 8;
     
+    /**
+    * Block cipher mode of operation.
+    * <p>See <a href="https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation">Wikipedia</a>.
+    * <p>The current implementation only supports ECB and CBC (with interleave factor 1).
+    */
     public enum Mode {
-       ECB, CBC1
-    };
+       /** Electronic Codebook mode. (<a href="https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Electronic_Codebook_.28ECB.29">Wikipedia</a>) */
+       ECB,
+       /** Cipher Block Chaining mode. (<a href="https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Cipher_Block_Chaining_.28CBC.29">Wikipedia</a>) */
+       CBC};
     
-    public static void cryptFile (String inputFileName, String outputFileName, String charKey, boolean encrypt, Mode mode) throws IOException {
-       FileChannel inChannel = null;
-       FileChannel outChannel = null;
-       try {
-          Idea idea = new Idea(charKey, encrypt);
-          BlockStreamCrypter bsc = new BlockStreamCrypter(idea, encrypt, mode);
-          inChannel = FileChannel.open(Paths.get(inputFileName), StandardOpenOption.READ);
-          long inFileSize = inChannel.size();
-          long inDataLen;
-          long outDataLen;
-          if (encrypt) {
-             inDataLen = inFileSize;
-             outDataLen = (inDataLen + blockSize - 1) / blockSize * blockSize; }
-           else {
-             if (inFileSize == 0) {
-                throw new IOException("Input file is empty."); }
-             if (inFileSize % blockSize != 0) {
-                throw new IOException("Input file size is not a multiple of " + blockSize + "."); }
-             inDataLen = inFileSize - blockSize;
-             outDataLen = inDataLen; }
-          outChannel = FileChannel.open(Paths.get(outputFileName), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
-          pumpData(inChannel, inDataLen, outChannel, outDataLen, bsc);
-          if (encrypt) {
-             writeDataLength(outChannel, inDataLen, bsc); }
-           else {
-             long outFileSize = readDataLength(inChannel, bsc);
-             if (outFileSize < 0 || outFileSize > inDataLen || outFileSize < inDataLen - blockSize + 1) {
-                throw new IOException("Input file is not a valid cryptogram."); }
-             if (outFileSize != outDataLen) {
-                outChannel.truncate(outFileSize); }}
-          outChannel.close(); }
-        finally {
-          if (inChannel != null) {
-             inChannel.close(); }
-          if (outChannel != null) {
-             outChannel.close(); }}}
+    /**
+    * Encrypts or decrypts a file.
+    *
+    * @param inputFileName
+    *    Name of the input file.
+    * @param outputFileName
+    *    Name of the output file.
+    * @param charKey
+    *    The encryption key. A string of ASCII characters within the range 0x21 .. 0x7E.
+    * @param encrypt
+    *    true to encrypt, false to decrypt.
+    * @param mode
+    *    Mode of operation.
+    */
+    public static byte[] cryptString (String data, String charKey, boolean encrypt) {
+
+            Idea idea = new Idea(charKey, encrypt);
+            BlockStreamCrypter bsc = new BlockStreamCrypter(idea, encrypt, Mode.CBC);
+            long inDataLen;
+            long outDataLen;
+
+            if (encrypt) {
+                inDataLen = data.length();
+                outDataLen = (inDataLen + blockSize - 1) / blockSize * blockSize;
+            } else {
+                inDataLen = data.length() - blockSize;
+                outDataLen = inDataLen;
+            }
+            
+            pumpData (data, inDataLen, outDataLen, bsc);
+
+            if (encrypt) {
+                byte[] a = packDataLength(inDataLen);
+                bsc.crypt(a, 0);
+                return a;
+            } 
+            
+            ByteBuffer buf = ByteBuffer.allocate(blockSize);
+            byte[] a = buf.array();
+            bsc.crypt(a, 0);
+            return a;
+    }
+
+    public static void pumpData (String data, long inDataLen, long outDataLen, BlockStreamCrypter bsc) {
+        final int bufSize = 0x200000;
+        ByteBuffer buf = ByteBuffer.allocate(bufSize);
+        long filePos = 0;
+        while (filePos < inDataLen) {
+            int reqLen = (int)Math.min(inDataLen - filePos, bufSize);     
+            buf.position(0);
+            buf.limit(reqLen);
+            int chunkLen = (reqLen + blockSize - 1) / blockSize * blockSize;
+            Arrays.fill(buf.array(), reqLen, chunkLen, (byte)0);
+            for (int pos = 0; pos < chunkLen; pos += blockSize) {
+                bsc.crypt(buf.array(), pos); 
+            }
+            reqLen = (int)Math.min(outDataLen - filePos, chunkLen);
+            buf.position(0);
+            buf.limit(reqLen);
+            filePos += chunkLen;
+        }
+
+    }
     
     private static class BlockStreamCrypter {
        Idea            idea;
@@ -69,7 +109,7 @@ public class IdeaFileEncryption {
              case ECB: {
                 idea.crypt(data, pos);
                 break; }
-             case CBC1: {
+             case CBC: {
                 if (encrypt) {
                    xor(data, pos, prev);
                    idea.crypt(data, pos);
@@ -81,31 +121,11 @@ public class IdeaFileEncryption {
                    byte[] temp = prev;
                    prev = newPrev;
                    newPrev = temp; }
-                break; }}}}
-    
-    private static void pumpData(FileChannel inChannel, long inDataLen, FileChannel outChannel, long outDataLen, BlockStreamCrypter bsc) throws IOException {
-       final int bufSize = 0x200000;
-       assert bufSize % blockSize == 0;
-       ByteBuffer buf = ByteBuffer.allocate(bufSize);
-       long filePos = 0;
-       while (filePos < inDataLen) {
-          int reqLen = (int)Math.min(inDataLen - filePos, bufSize);
-          buf.position(0);
-          buf.limit(reqLen);
-          int trLen = inChannel.read(buf);
-          if (trLen != reqLen) {
-             throw new IOException("Incomplete data chunk read from file."); }
-          int chunkLen = (trLen + blockSize - 1) / blockSize * blockSize;
-          Arrays.fill(buf.array(), trLen, chunkLen, (byte)0);
-          for (int pos = 0; pos < chunkLen; pos += blockSize) {
-             bsc.crypt(buf.array(), pos); }
-          reqLen = (int)Math.min(outDataLen - filePos, chunkLen);
-          buf.position(0);
-          buf.limit(reqLen);
-          trLen = outChannel.write(buf);
-          if (trLen != reqLen) {
-             throw new IOException("Incomplete data chunk written to file."); }
-          filePos += chunkLen; }}
+                break; 
+                       }
+          }
+       }
+    }
     
     private static long readDataLength (FileChannel channel, BlockStreamCrypter bsc) throws IOException {
        ByteBuffer buf = ByteBuffer.allocate(blockSize);
@@ -122,8 +142,13 @@ public class IdeaFileEncryption {
        ByteBuffer buf = ByteBuffer.wrap(a);
        int trLen = channel.write(buf);
        if (trLen != blockSize) {
-          throw new IOException("Error while writing data length suffix."); }}
+          throw new IOException("Error while writing data length suffix."); 
+       }
+    }
     
+    // Packs an integer into an 8-byte block. Used to encode the file size.
+    // To support larger files, we allow 13 more bits than the original IDEA V1.1 implementation.
+    // But files larger than 4GB are no longer backward compatible with the old IDEA V1.1 file structure.
     private static byte[] packDataLength (long i) {
        if (i > 0x1FFFFFFFFFFFL) {                    // 45 bits
           throw new IllegalArgumentException("File too long."); }
@@ -136,6 +161,8 @@ public class IdeaFileEncryption {
        b[2] = (byte)(i >> 37);
        return b; }
     
+    // Extracts an integer from an 8-byte block. Used to decode the file size.
+    // Returns -1 if the encoded value is invalid. This means that the input file is not a valid cryptogram.
     private static long unpackDataLength (byte[] b) {
        if (b[0] != 0 || b[1] != 0 || (b[7] & 7) != 0) {
           return -1; }

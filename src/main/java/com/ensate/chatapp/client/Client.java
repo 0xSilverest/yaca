@@ -2,9 +2,13 @@ package com.ensate.chatapp.client;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -12,13 +16,40 @@ import com.ensate.chatapp.client.controller.ChatController;
 import com.ensate.chatapp.client.model.*;
 import com.ensate.chatapp.interact.*;
 import com.ensate.chatapp.utils.*;
+import com.ensate.chatapp.utils.idea.IdeaBlock;
 
 public class Client {
     private static ClientConnection conn;
     private static String username;
     private static List<Contact> onlineUsers = new ArrayList<>();
     private static HashMap<String, ArrayList<UserMessage>> chatLog = new HashMap<>();
+    private static HashMap<String, byte[]> sessionKeys = new HashMap<>();
     private static List<UserMessage> groupChat = new ArrayList<>();
+    private static PrivateKey sk;
+    private static PublicKey pk;
+    
+    public static void init (String accName) throws NoSuchAlgorithmException, IOException {
+        username = accName;
+        generateAsymKeys();
+        sendKey();
+        new ResponseParser().start();
+    }
+
+    private static void addSessionKey(MessSymKey messKey) {
+        try {
+            sessionKeys.putIfAbsent(messKey.getUsername(), messKey.getKey(sk));  
+            System.out.println(new String(messKey.getKey(sk)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void generateAsymKeys () throws NoSuchAlgorithmException {
+        KeyGen keyGen = new KeyGen(1024);
+        keyGen.createKeys();
+        sk = keyGen.getPrivateKey();
+        pk = keyGen.getPublicKey();
+    }
 
     public static void loadMessages (HashMap<String, ArrayList<UserMessage>> loadedChatLog) {
         chatLog = loadedChatLog ;
@@ -35,23 +66,29 @@ public class Client {
                 onlineUsers.remove(x);
                 onlineUsers.add(0, x);
                 x.online();
-            } else x.offline();
+            } else {
+                x.offline();
+                sessionKeys.remove(x.getUsername());
+            }
         });
         ChatController.updateList();
     }
 
     public static void updateUsers(Set<Contact> users) {
         onlineUsers = new ArrayList<>(users);
-        onlineUsers.forEach(System.out::println);
         ChatController.updateList();
     }
+
+    public static byte[] getKey (String username) {
+        return sessionKeys.get(username);
+    } 
 
     public static void updateChatLog(String k, UserMessage msg) {
         if (!chatLog.containsKey(k))
             chatLog.put(k, new ArrayList<UserMessage>(List.of(msg)));
         else chatLog.get(k).add(msg);
         ChatController.updateChat();
-    } 
+    }; 
 
     public static long getUnreadFor(String username) {
         return 
@@ -64,46 +101,6 @@ public class Client {
     public static void updateGroupChat(UserMessage msg) {
        groupChat.add(msg);
        ChatController.updateChat();
-    }
-
-    public static Response getResponse() throws IOException {
-        try {
-            Object obj = conn.receive();
-
-            if (obj instanceof Response) 
-                return (Response) obj; 
-        } catch (EOFException | ClassNotFoundException  e) {}
-        return new RespEmpty();
-    }
-
-    public static void login (String account, String password) throws IOException, NoSuchAlgorithmException {
-        conn.send(new ReqAcc(account, password, RequestType.LOGIN));
-    }
-
-    public static void exit () throws IOException {
-        if (conn.isOn()) {  
-            conn.send(new ReqExit());
-            FileUtils.serialize(chatLog, username + ".log");
-            FileUtils.serialize(groupChat, "general.log");
-            conn.shutdown();
-        }
-    }
-
-    public static void sendMessage (LocalDateTime t, String sendTo, String message) throws IOException {
-        conn.send(new ReqMessage(t, RequestType.SENDMES, username, sendTo, message));
-        updateChatLog(sendTo, new UserMessage(t, username, message));
-    }
-
-    public static void broadcast (LocalDateTime t, String message) throws IOException {
-        conn.send(new ReqMessage(t, RequestType.BROADCAST, username, "", message));
-    }
-
-    public static void askForList() {
-        try {
-            sendRequest(new ReqList(username));
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
     }
     
     public static List<Contact> getOnlineUsers() {
@@ -154,23 +151,81 @@ public class Client {
         conn = new ClientConnection();
     }
 
-    public static void sendRequest(Request req) throws IOException, InterruptedException {
+    public static void sendRequest(Request req) throws IOException{
+
         conn.send(req);
     }
 
-    public static void sendFile(LocalDateTime t, String sendTo, String fileName, byte[] fileBytes) throws IOException, InterruptedException {
+    public static void sendFile(LocalDateTime t, String sendTo, String fileName, byte[] fileBytes) throws IOException {
         updateChatLog(sendTo, new FileMessage(t, username, "placeholder", fileName, fileBytes));
-        conn.send(new ReqSendFile(t, username, sendTo, "placeholder", fileName, fileBytes, RequestType.SENDFILE));
-        System.out.println("sent: " + fileName);
+        sendRequest (new ReqSendFile(t, username, sendTo, "placeholder".getBytes(), fileName, fileBytes, RequestType.SENDFILE));
     }
 
-    public static void broadcastFile(LocalDateTime t, String fileName, byte[] fileBytes) throws IOException, InterruptedException {
+    public static void broadcastFile(LocalDateTime t, String fileName, byte[] fileBytes) throws IOException {
         updateGroupChat(new FileMessage(t, username, "placeholder", fileName, fileBytes));
-        conn.send(new ReqSendFile(t, username, "", "placeholder", fileName, fileBytes, RequestType.BROADCASTFILE));
-        System.out.println("sent: " + fileName);
+        sendRequest (new ReqSendFile(t, username, "", "placeholder".getBytes(), fileName, fileBytes, RequestType.BROADCASTFILE));
     }
 
     public static String getUsername() {
         return username;
+    }
+
+    public static void disconnect() {
+        try {
+            sendRequest(new ReqDisconnect());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Response getResponse() throws IOException {
+        try {
+            Object obj = conn.receive();
+            if (obj instanceof Response) 
+                return (Response) obj; 
+            else if (obj instanceof MessSymKey) {
+                addSessionKey((MessSymKey) obj);
+            }
+        } catch (EOFException | ClassNotFoundException  e) {}
+        return new RespEmpty();
+    }
+
+    public static void login (String account, String password) throws IOException, NoSuchAlgorithmException {
+        sendRequest(new ReqAcc(account, password, RequestType.LOGIN));
+    }
+
+    public static void exit () throws IOException {
+        if (conn.isOn()) {  
+            sendRequest(new ReqExit());
+            FileUtils.serialize(chatLog, username + ".log");
+            FileUtils.serialize(groupChat, "general.log");
+            conn.shutdown();
+        }
+    }
+
+    public static void sendMessage (LocalDateTime t, String sendTo, String message) throws IOException {
+        List<IdeaBlock> encwypt = Runner.encrypt(Runner.initIdea(sessionKeys.get(sendTo)) ,message); 
+        sendRequest(new ReqMessage(t, RequestType.SENDMES, username, sendTo, encwypt));
+        updateChatLog(sendTo, new UserMessage(t, username, message));
+    }
+
+    public static void broadcast (LocalDateTime t, String message) throws IOException {
+        sendRequest(new ReqMessage(t, RequestType.BROADCAST, username, "", message.getBytes()));
+    }
+
+    public static void askForList() {
+        try {
+            sendRequest(new ReqList(username));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void sendRegistration (String accname, String email, String password) throws IOException, NoSuchAlgorithmException {
+        sendRequest(new ReqAcc(accname, password, RequestType.REG));
+    }
+
+    public static void sendKey () throws IOException {
+        conn.send(new MessPubKey(pk));
     }
 }

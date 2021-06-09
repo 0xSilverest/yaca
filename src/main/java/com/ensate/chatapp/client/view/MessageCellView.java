@@ -1,5 +1,7 @@
 package com.ensate.chatapp.client.view;
 
+import java.io.File;
+
 import com.ensate.chatapp.client.Client;
 import com.ensate.chatapp.client.model.*;
 
@@ -41,10 +43,11 @@ public class MessageCellView extends ListCell<UserMessage> {
     }
 
     private void checkType (FileMessage flMsg, VBox box) {
+        flMsg.makeFile("tmp/");
+        String filePath = new File("tmp/"+flMsg.getFileName()).toURI().toString();
         switch(flMsg.getFileType()) {
             case IMAGE:
-                flMsg.makeFile("/home/silverest/tmp");
-                Image img = new Image("file:///home/silverest/tmp/"+flMsg.getFileName());
+                Image img = new Image(filePath);
                 ImageView imgVw = new ImageView(img); 
                 imgVw.setFitWidth(400);
                 imgVw.setPreserveRatio(true);
@@ -59,9 +62,8 @@ public class MessageCellView extends ListCell<UserMessage> {
                 break;
             
             case AUDIO:
-                flMsg.makeFile("/home/silverest/tmp");
-                //Media media = new Media(new File("file:///home/silverest/tmp/"+flMsg.getFileName()).toURI().toString());
-                //MediaPlayer mediaPlayer = new MediaPlayer(media);  
+                AudioPlayer audioPlayer = new AudioPlayer(filePath);
+                box.getChildren().add(audioPlayer);
                 break;
     
             case OTHER:

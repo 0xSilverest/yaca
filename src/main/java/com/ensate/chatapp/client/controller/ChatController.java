@@ -74,7 +74,7 @@ public class ChatController implements Initializable {
     private static ObservableList<Contact> connectedList = FXCollections.observableArrayList();
     private static ObservableList<UserMessage> messages = FXCollections.observableArrayList();
     private static String currentSelectedContact;
-    
+
     private void sendMessageEvent() {
         String msg = message.getText();
         if (!msg.isBlank()) {
@@ -95,7 +95,7 @@ public class ChatController implements Initializable {
     private void disconnect() {
         try {
             Client.exit();
-            Platform.exit();    
+            Platform.exit(); 
             System.exit(0);
         } catch (IOException e) {
             e.printStackTrace();
@@ -111,7 +111,7 @@ public class ChatController implements Initializable {
                     Client.broadcastFile(LocalDateTime.now(), selectedFile.getName(), Files.readAllBytes(Paths.get(selectedFile.getPath())));
                 else
                     Client.sendFile(LocalDateTime.now(), currentSelectedContact, selectedFile.getName(), Files.readAllBytes(Paths.get(selectedFile.getPath())));
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

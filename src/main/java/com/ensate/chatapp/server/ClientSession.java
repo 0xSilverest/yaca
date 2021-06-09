@@ -4,6 +4,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.SocketException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 
 import com.ensate.chatapp.interact.*;
 
@@ -11,6 +12,7 @@ public class ClientSession extends Thread {
     
     private final ServerConnection conn;
     private final Session session;
+    private PublicKey pk;
 
     ClientSession (ServerConnection conn) {
         this.conn = conn;
@@ -84,6 +86,21 @@ public class ClientSession extends Thread {
                 if (obj instanceof Request) {
                     query = (Request) obj;
                     menu(query);
+                } else if (obj instanceof MessPubKey) {
+                    pk = ((MessPubKey) obj).getKey();
+                    Server.addKey(session.getUsername(), pk);                     
+                    Server.getConnectedList()
+                        .forEach(x -> {
+                                if (!x.equals(session.getUsername())) {
+                                    try { 
+                                        Server.createSymAndSend(session.getUsername(), x); 
+                                    } catch (Exception e) {
+                                        e.printStackTrace(); 
+                                    }
+                                    
+                                }
+                            }
+                        );
                 }
             } catch (EOFException | SocketException e) {
                 System.out.println("Client " + session.getUsername() + " interrupted");

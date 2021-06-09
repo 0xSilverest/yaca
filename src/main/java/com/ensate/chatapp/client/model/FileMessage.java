@@ -14,7 +14,7 @@ public class FileMessage extends UserMessage {
         return new FileMessage(
                     respF.getTime(), 
                     respF.getSender(), 
-                    respF.getMsg(), 
+                    new String(respF.getMsg()), 
                     respF.getFileName(), 
                     respF.getFile());
     }

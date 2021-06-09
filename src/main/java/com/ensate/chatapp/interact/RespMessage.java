@@ -1,13 +1,16 @@
 package com.ensate.chatapp.interact;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import com.ensate.chatapp.utils.idea.IdeaBlock;
 
 public class RespMessage extends Response {
     private final LocalDateTime t;
     private final String sender;
-    private final String msg;
+    private final List<IdeaBlock> msg;
 
-    public RespMessage (LocalDateTime t, String sender, String msg, ResponseType responseType) {
+    public RespMessage (LocalDateTime t, String sender, List<IdeaBlock> msg, ResponseType responseType) {
         this.t = t;
         this.sender = sender;
         this.msg = msg;
@@ -22,7 +25,7 @@ public class RespMessage extends Response {
         return sender;
     }
 
-    public String getMsg() {
+    public List<IdeaBlock> getMsg() {
         return msg;
     }
 

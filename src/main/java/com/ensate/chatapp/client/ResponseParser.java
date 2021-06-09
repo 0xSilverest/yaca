@@ -10,16 +10,15 @@ public class ResponseParser extends Thread {
     public static void parseReponse(Response resp) {
         switch (resp.getResponseType()) {
             case MESSAGE:
-                //TODO add unread
                 RespMessage respMsg = (RespMessage) resp;
-                Client.updateChatLog(respMsg.getSender(), UserMessage.retrieve(respMsg));
+                Client.updateChatLog(respMsg.getSender(), UserMessage.retrieve(respMsg, Client.getKey(respMsg.getSender())));
                 break;
 
             case BROADCAST: 
-                Client
+                /*Client
                 .updateGroupChat(
                     UserMessage.retrieve((RespMessage) resp));
-                break;
+                break;*/
 
             case SENDFILE:
                 RespSendFile respF = (RespSendFile) resp;
@@ -53,11 +52,10 @@ public class ResponseParser extends Thread {
                 break;
 
             case SUCC:
-                System.out.println("success");
                 break;
 
             case FAIL: 
-                System.out.println(((RespFail) resp).getReason());
+                App.alert(((RespFail) resp).getReason());
                 break;
 
             case EMPTY:
@@ -70,7 +68,7 @@ public class ResponseParser extends Thread {
         while (true) {
             try {
                 Response rsp = Client.getResponse();
-                new Thread(() -> parseReponse(rsp)).start();;
+                new Thread(() -> parseReponse(rsp)).start();
             } catch (IOException e) {
                 try {
                     Client.shutdown();

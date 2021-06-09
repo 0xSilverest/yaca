@@ -1,24 +1,57 @@
 package com.ensate.chatapp.utils;
 
-public class Idea {
-    
+public class Ideas {
+
     private static final int     rounds = 8;         // number of rounds
     
     private final int[]          subKey;             // internal encryption sub-keys
     
-    public Idea (byte[] key, boolean encrypt) {
+    /**
+    * Creates an instance of the IDEA processor, initialized with a 16-byte binary key.
+    *
+    * @param key
+    *    A 16-byte binary key.
+    * @param encrypt
+    *    true to encrypt, false to decrypt.
+    */
+    public Ideas (byte[] key, boolean encrypt) {
        int[] tempSubKey = expandUserKey(key);
        if (encrypt) {
           subKey = tempSubKey; }
         else {
-          subKey = invertSubKey(tempSubKey); }}
+          subKey = invertSubKey(tempSubKey); }
+    }
     
-    public Idea (String charKey, boolean encrypt) {
-       this(generateUserKeyFromCharKey(charKey), encrypt); }
+    /**
+    * Creates an instance of the IDEA processor, initialized with a character string key.
+    *
+    * @param charKey
+    *    A string of ASCII characters within the range 0x21 .. 0x7E.
+    * @param encrypt
+    *    true to encrypt, false to decrypt.
+    */
+    public Ideas (String charKey, boolean encrypt) {
+       this(generateUserKeyFromCharKey(charKey), encrypt);
+    }
     
+    /**
+    * Encrypts or decrypts a block of 8 data bytes.
+    *
+    * @param data
+    *    Buffer containing the 8 data bytes to be encrypted/decrypted.
+    */
     public void crypt (byte[] data) {
-       crypt(data, 0); }
+       crypt(data, 0);
+    }
     
+    /**
+    * Encrypts or decrypts a block of 8 data bytes.
+    *
+    * @param data
+    *    Data buffer containing the bytes to be encrypted/decrypted.
+    * @param dataPos
+    *    Start position of the 8 bytes within the buffer.
+    */
     public void crypt (byte[] data, int dataPos) {
        int x0 = ((data[dataPos + 0] & 0xFF) << 8) | (data[dataPos + 1] & 0xFF);
        int x1 = ((data[dataPos + 2] & 0xFF) << 8) | (data[dataPos + 3] & 0xFF);
@@ -54,16 +87,23 @@ public class Idea {
        data[dataPos + 4] = (byte)(r2 >> 8);
        data[dataPos + 5] = (byte)r2;
        data[dataPos + 6] = (byte)(r3 >> 8);
-       data[dataPos + 7] = (byte)r3; }
+       data[dataPos + 7] = (byte)r3;
+    }
     
     //--- Static methods -----------------------------------------------------------
     
+    // Addition in the additive group.
+    // The arguments and the result are within the range 0 .. 0xFFFF.
     private static int add (int a, int b) {
        return (a + b) & 0xFFFF; }
     
+    // Additive Inverse.
+    // The argument and the result are within the range 0 .. 0xFFFF.
     private static int addInv (int x) {
        return (0x10000 - x) & 0xFFFF; }
     
+    // Multiplication in the multiplicative group.
+    // The arguments and the result are within the range 0 .. 0xFFFF.
     private static int mul (int a, int b ) {
        long r = (long)a * b;
        if (r != 0) {
@@ -71,6 +111,9 @@ public class Idea {
         else {
           return (1 - a - b) & 0xFFFF; }}
     
+    // Multiplicative inverse.
+    // The argument and the result are within the range 0 .. 0xFFFF.
+    // The following condition is met for all values of x: mul(x, mulInv(x)) == 1
     private static int mulInv (int x) {
        if (x <= 1) {
           return x; }
@@ -87,7 +130,7 @@ public class Idea {
           if (x == 1) {
              return t0; }}}
     
-
+    // Inverts decryption/encrytion sub-keys to encrytion/decryption sub-keys.
     private static int[] invertSubKey (int[] key) {
        int[] invKey = new int[key.length];
        int p = 0;
@@ -96,7 +139,7 @@ public class Idea {
        invKey[i + 1] = addInv(key[p++]);
        invKey[i + 2] = addInv(key[p++]);
        invKey[i + 3] = mulInv(key[p++]);
-       for (int r = rounds - 1; r > 0; r--) {
+       for (int r = rounds - 1; r >= 0; r--) {
           i = r * 6;
           int m = r > 0 ? 2 : 1;
           int n = r > 0 ? 1 : 2;
@@ -108,7 +151,7 @@ public class Idea {
           invKey[i + 3] = mulInv(key[p++]); }
        return invKey; }
     
-    
+    // Expands a 16-byte user key to the internal encryption sub-keys.
     private static int[] expandUserKey (byte[] userKey) {
        if (userKey.length != 16) {
           throw new IllegalArgumentException(); }
@@ -119,6 +162,8 @@ public class Idea {
           key[i] = ((key[(i + 1) % 8 != 0 ? i - 7 : i - 15] << 9) | (key[(i + 2) % 8 < 2 ? i - 14 : i - 6] >> 7)) & 0xFFFF; }
        return key; }
     
+    // Generates a 16-byte binary user key from a character string key.
+    // The characters within the string must be within the range 0x21 .. 0x7E.
     private static byte[] generateUserKeyFromCharKey (String charKey) {
        final int minChar = 0x21;
        final int maxChar = 0x7E;
@@ -140,4 +185,3 @@ public class Idea {
        return key; }
     
 }
-

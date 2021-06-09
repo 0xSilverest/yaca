@@ -10,6 +10,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 
 public class App extends Application { 
     private static Stage window;
@@ -52,6 +54,11 @@ public class App extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void alert(String err) {
+        Alert a = new Alert (AlertType.ERROR, err);
+        a.show();
     }
 
     private static Parent loadFXML(String fxml) throws Exception {

@@ -18,7 +18,7 @@ public class RespSendFile extends RespMessage {
                     ResponseType.BROADCASTFILE);
     }
 
-    public RespSendFile (LocalDateTime t, String sender, String msg, String fileName, byte[] file, ResponseType resp) {
+    public RespSendFile (LocalDateTime t, String sender, byte[] msg, String fileName, byte[] file, ResponseType resp) {
         super (t, sender, msg, ResponseType.SENDFILE); 
         this.fileName = fileName;
         this.file = file;
